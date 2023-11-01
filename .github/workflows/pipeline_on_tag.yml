@@ -1,0 +1,128 @@
+on:
+  push:
+    tags:
+      # Semver (with optional dev extension (-dev)
+      - 'v[0-9]+\.[0-9]+\.[0-9]+(?:-*)?'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      # Checkout code
+      - name: Checkout code
+        id: git_checkout
+        uses: actions/checkout@v3
+      # Get the tag based on the GITHUB REF env var
+      - id: get_tag
+        run: |
+          echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+      # Check pre release regex match
+      - id: tag_regex_match
+        uses: kaisugi/action-regex-match@v1.0.0
+        with:
+          text: ${{ steps.get_tag.outputs.tag }}
+          regex: '^v[0-9]+\.[0-9]+\.[0-9]+(-*)?$'
+      - id: verify_versions
+        run: |
+          # Install toml
+          pip install toml
+          
+          pyproject_version="$( \
+          python <<END          
+          import toml
+          with open("pyproject.toml", "r") as f_h:
+              data = toml.load(f_h)
+          print(data.get("project").get("version"))
+          END
+          )"
+          
+          # TODO - consider -dev extension on toml and we override it?
+          # OR we create our own extension?
+          if [[ "${pyproject_version}" != "${{ steps.get_tag.outputs.tag }}" ]]; then
+            echo "version in pyproject.toml and tag do not match! Exiting" 2>&1
+            exit 1
+          fi
+
+      # Is Pre Release
+      - id: is_pre_release
+        run: |
+          is_pre_release="false"
+          if [[ -n "${{ steps.tag_regex_match.outputs.group1 }}" ]]; then
+            is_pre_release="true"
+          fi
+          echo "is_pre_release=${is_pre_release}" >> "${GITHUB_OUTPUT}"
+      # PyPi Outputs
+      - id: get_repository_and_index_url
+        run: |
+          pypi_repository="pypi"
+          index_url="https://pypi.org/simple/"
+          if [[ "${{ steps.is_pre_release.outputs.is_pre_release }}" == "true" ]]; then
+            pypi_repository="testpypi"
+            index_url="https://test.pypi.org/simple/"
+          fi
+          echo "pypi_repository=${pypi_repository}" >> "${GITHUB_OUTPUT}"
+          echo "index_url=${index_url}" >> "${GITHUB_OUTPUT}"
+      # Docker Container
+      - id: get_docker_container_tags
+        run: |
+          docker_container_uri_str_list="ghcr.io/${{ github.repository }}:${{ steps.get_tag.outputs.docker_tag }}"
+          if [[ "${{ steps.is_pre_release.outputs.is_pre_release }}" == "false" ]]; then
+            docker_container_uri_str_list="${docker_container_uri_str_list},ghcr.io/${{ github.repository }}:latest"
+          fi
+          echo "docker_container_uri_str_list=${docker_container_uri_str_list}" >> "${GITHUB_OUTPUT}"
+    # Set outputs of setup job
+    outputs:
+      git_tag: ${{ steps.get_tag.outputs.tag }}
+      is_pre_release: ${{ steps.is_pre_release.outputs.is_pre_release }}
+      pypi_repository: ${{ steps.get_repository_and_index_url.outputs.pypi_repository }}
+      index_url: ${{ steps.get_repository_and_index_url.outputs.index_url }}
+      docker_container_uri_str_list: ${{ steps.get_docker_container_tags.outputs.docker_container_uri_str_list }}
+
+  # Run tests and generate report
+  test:
+    needs:
+      - setup
+    runs-on: ubuntu-latest
+    steps:
+      - id: git_checkout
+        uses: actions/checkout@3
+      - id: run_make_test
+        run: |
+          make test
+          echo "coverage_report_str=$(cat coverage_report.txt)" >> "${GITHUB_OUTPUT}"
+    outputs:
+      coverage_report_str: ${{ steps.run_make_test.outputs.coverage_report_str }}
+
+  # Build package and make release on GitHub
+  build_package_and_release:
+    needs:
+      - setup
+      - test
+    uses: ./.github/workflows/build_package_and_release.yml
+    with:
+      git_tag: ${{ needs.setup.outputs.git_tag }}
+      coverage_report_str: ${{ needs.test.outputs.coverage_report_str }}
+
+  # Now publish on pypi (or test-pypi if this is a dev release)
+  # This only occurs after release on GitHub
+  publish_pypi:
+    needs:
+      - setup
+      - build_package_and_release
+    uses: ./.github/workflows/publish_pypi.yml
+    with:
+      is_pre_release: ${{ needs.setup.outputs.is_pre_release }}
+      git_tag: ${{ needs.setup.outputs.git_tag }}
+      pypi_repository: ${{ needs.setup.outputs.pypi_repository }}
+
+  # Now build container
+  build_container:
+    needs:
+      - setup
+      - build_package_and_release
+    uses: ./.github/workflows/build_container.yml
+    with:
+      docker_container_uri_str_list: ${{ needs.setup.outputs.docker_container_uri_str_list }}

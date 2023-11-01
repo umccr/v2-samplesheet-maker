@@ -1,0 +1,46 @@
+name: build-package-wheel-and-release
+
+on:
+  workflow_call:
+    inputs:
+      git_tag:
+        required: true
+        type: string
+      pypi_repository:
+        required: true
+        type: string
+      is_pre_release:
+        required: true
+        type: string
+
+permissions:
+  id-token: write   # This is required for connecting to PYPI
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  deploy_to_pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - id: git_checkout
+        uses: actions/checkout@3
+      - id: get_whl_from_release
+        run: |
+          pip install .[deploy]
+          mkdir dist
+          gh release download "${{ inputs.git_tag }}" --dir dist/
+          if [[ "${{ inputs.is_pre_release }}" == "true" ]]; then
+            make push_test_pypi
+          else
+            make push_pypi
+          fi
+      - id: wait_for_cache
+        run: |
+          # Just wait for 
+          sleep 5
+      - id: check_successful_deployment_to_pypi
+        run: |
+          if [[ "${{ inputs.is_pre_release }}" == "true" ]]; then
+            make install_test_pypi
+          else
+            make install_pypi
+          fi

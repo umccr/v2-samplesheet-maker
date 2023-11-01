@@ -1,0 +1,37 @@
+name: build-package-wheel-and-release
+
+on:
+  workflow_call:
+    inputs:
+      git_tag:
+        required: true
+        type: string
+      coverage_report_str:
+        required: true
+        type: string
+
+jobs:
+  build_package_and_release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - id: git_checkout
+        uses: actions/checkout@3
+      - id: make_build
+        run: |
+          make build
+      - id: make_notes
+        run: |
+          # Generate notes using tests
+          echo "# ${{ inputs.git_tag }}" > notes.md
+          echo "## Coverage Report" >> notes.md
+          echo "${{ inputs.coverage_report_str }}" >> notes.md
+      - id: make_release
+        run: |
+          gh release create \
+            "${{ inputs.git_tag }}" \
+            --notes-file notes.md \
+            --title "${{ inputs.git_tag }} release" \
+            dist/*
