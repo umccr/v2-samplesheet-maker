@@ -3,8 +3,8 @@ test:
 	@pip install .[test]
 	@PYTHONPATH=src/ pytest \
       --cov src/v2_samplesheet_maker \
-      --cov-report term \
-      --capture=no | tee coverage_report.txt
+      --capture=no | \
+      tee coverage_report.txt
 
 # Run build
 build_package:

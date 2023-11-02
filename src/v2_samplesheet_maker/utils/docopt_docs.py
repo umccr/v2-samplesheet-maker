@@ -3,7 +3,7 @@
 def get_v2_samplesheet_writer_doc_opt():
     return """
 Usage:
-write-v2-samplesheet-from-json.py <input-json> <output-csv>
+v2-samplesheet-maker <input-json> <output-csv>
 
 Options:
 
@@ -11,7 +11,7 @@ Options:
 * output-csv: Path to the output-csv. Use '-' to write to stdout
 
 Example:
-write-v2-samplesheet-from-json.py /path/to/input.json SampleSheet.csv
+v2-samplesheet-maker /path/to/input.json SampleSheet.csv
 
 Description:
 Given a json file, write out a samplesheet csv.

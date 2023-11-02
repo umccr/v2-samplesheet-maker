@@ -14,7 +14,7 @@ jobs:
       # Checkout code
       - name: Checkout code
         id: git_checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       # Get the tag based on the GITHUB REF env var
       - id: get_tag
         run: |
@@ -68,7 +68,7 @@ jobs:
       # Docker Container
       - id: get_docker_container_tags
         run: |
-          docker_container_uri_str_list="ghcr.io/${{ github.repository }}:${{ steps.get_tag.outputs.docker_tag }}"
+          docker_container_uri_str_list="ghcr.io/${{ github.repository }}:${{ steps.get_tag.outputs.tag }}"
           if [[ "${{ steps.is_pre_release.outputs.is_pre_release }}" == "false" ]]; then
             docker_container_uri_str_list="${docker_container_uri_str_list},ghcr.io/${{ github.repository }}:latest"
           fi
@@ -86,43 +86,72 @@ jobs:
     needs:
       - setup
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
       - id: git_checkout
-        uses: actions/checkout@3
+        uses: actions/checkout@v4
+      - id: setup_python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+#      - id: upgrade_pip
+#        run: |
+#          pip install --upgrade pip
       - id: run_make_test
         run: |
           make test
-          echo "coverage_report_str=$(cat coverage_report.txt)" >> "${GITHUB_OUTPUT}"
-    outputs:
-      coverage_report_str: ${{ steps.run_make_test.outputs.coverage_report_str }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage_report
+          path: coverage_report.txt
 
-  # Build package and make release on GitHub
-  build_package_and_release:
+  # Build package
+  build_package_wheels:
     needs:
       - setup
       - test
-    uses: ./.github/workflows/build_package_and_release.yml
+    uses: ./.github/workflows/build_package.yml
+
+  # Build package and make release on GitHub
+  build_release:
+    needs:
+      - setup
+      - test
+      - build_package_wheels
+    uses: ./.github/workflows/build_release.yml
     with:
       git_tag: ${{ needs.setup.outputs.git_tag }}
-      coverage_report_str: ${{ needs.test.outputs.coverage_report_str }}
+      coverage_report_artifacts_name: coverage_report
+      coverage_report_artifacts_path: coverage_report.txt
+      dist_artifacts_name: dist
+      dist_artifacts_path: dist
 
   # Now publish on pypi (or test-pypi if this is a dev release)
   # This only occurs after release on GitHub
   publish_pypi:
     needs:
       - setup
-      - build_package_and_release
+      - test
+      - build_package_wheels
+      - build_release
     uses: ./.github/workflows/publish_pypi.yml
     with:
       is_pre_release: ${{ needs.setup.outputs.is_pre_release }}
       git_tag: ${{ needs.setup.outputs.git_tag }}
       pypi_repository: ${{ needs.setup.outputs.pypi_repository }}
+      dist_artifacts_name: dist
+      dist_artifacts_path: dist
 
   # Now build container
   build_container:
     needs:
       - setup
-      - build_package_and_release
+      - test
+      - build_package_wheels
+      - build_release
+      - publish_pypi
     uses: ./.github/workflows/build_container.yml
     with:
       docker_container_uri_str_list: ${{ needs.setup.outputs.docker_container_uri_str_list }}

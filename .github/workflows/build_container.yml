@@ -3,6 +3,9 @@ name: build_container
 on:
   workflow_call:
     inputs:
+      git_tag:
+        required: true
+        type: string
       docker_container_uri_str_list:
         required: true
         type: string
@@ -13,7 +16,7 @@ jobs:
     steps:
       - name: Checkout code
         id: git_checkout
-        uses: actions/checkout@3
+        uses: actions/checkout@v4
       # Use qemu to perform multiplatform builds
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -38,6 +41,10 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./
-          platforms: linux/amd64
+          platforms:
+            - linux/amd64
+            - linux/arm64
           push: true
+          build-args:
+            V2_SAMPLESHEET_MAKER_VERSION_TAG=${{ inputs.git_tag }}
           tags: ${{ inputs.docker_container_uri_str_list }}

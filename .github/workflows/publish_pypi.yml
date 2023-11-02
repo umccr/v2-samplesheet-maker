@@ -22,21 +22,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: git_checkout
-        uses: actions/checkout@3
-      - id: get_whl_from_release
+        uses: actions/checkout@4
+      # Used to host cibuildwheel
+      - id: setup_python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - id: download_wheels
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.dist_artifacts_name }}
+      - id: install_deployment_deps
         run: |
           pip install .[deploy]
-          mkdir dist
-          gh release download "${{ inputs.git_tag }}" --dir dist/
+      - id: deploy_to_pypi
+        run: |
           if [[ "${{ inputs.is_pre_release }}" == "true" ]]; then
             make push_test_pypi
           else
             make push_pypi
           fi
-      - id: wait_for_cache
-        run: |
-          # Just wait for 
-          sleep 5
       - id: check_successful_deployment_to_pypi
         run: |
           if [[ "${{ inputs.is_pre_release }}" == "true" ]]; then
