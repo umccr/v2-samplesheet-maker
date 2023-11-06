@@ -100,6 +100,7 @@ fi
 ## Get inputs
 input_json_str=""
 run_info_xml_output_file=""
+positional_args_array=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -113,12 +114,15 @@ while [ $# -gt 0 ]; do
       exit 1
       ;;
     *)
-      input_json_str="${1-}"
-      run_info_xml_output_file="${2-}"
+      positional_args_array+=( "${1-}" )
       ;;
   esac
   shift 1
 done
+
+# Get positional args
+input_json_str="${positional_args_array[0]}"
+run_info_xml_output_file="${positional_args_array[1]-}"
 
 ## Check inputs
 if [[ -z "${input_json_str}" ]]; then
@@ -144,7 +148,7 @@ echo_stderr "Generating RunInfo.xml file"
 key_value_pair_json_str="$(
   jq --raw-output --compact-output \
     '
-      .reads | to_entries |
+      . | to_entries |
       # Add is_index attribute and order by expectations of runinfo xml
       map (
         . +

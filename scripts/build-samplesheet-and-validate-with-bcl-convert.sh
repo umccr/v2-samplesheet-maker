@@ -45,11 +45,18 @@ Requirements:
   * yq    (v4.18+)
   * v2-samplesheet-maker | docker
   * bcl-convert | docker
-  * build-run-info-xml-from-reads-json.sh
+  * build-runinfo-xml-from-reads-json.sh
 
 Example:
 build-samplesheet-and-validate-with-bcl-convert.sh examples/inputs/standard-sheet-with-settings.json --bcl-sampleproject-subdirectories true
 "
+}
+
+echo_stderr(){
+  : '
+  Write output to stderr
+  '
+  echo "${@}" 1>&2
 }
 
 
@@ -94,6 +101,7 @@ fi
 # Get args from command line
 input_json_file=""
 output_samplesheet_path=""
+positional_args_array=()
 bcl_convert_args=()
 
 while [ $# -gt 0 ]; do
@@ -121,12 +129,15 @@ while [ $# -gt 0 ]; do
       fi
       ;;
     *)
-      input_json_file="${1-}"
-      output_samplesheet_path="${2-}"
+      positional_args_array+=( "${1-}" )
       ;;
   esac
   shift 1
 done
+
+# Get positional args
+input_json_file="${positional_args_array[0]}"
+output_samplesheet_path="${positional_args_array[1]-}"
 
 ## Validate input json file is readable and valid json
 if [[ -z "${input_json_file}" ]]; then
@@ -155,7 +166,7 @@ elif [[ -r "${output_samplesheet_path}" ]]; then
 fi
 
 ## Create trap
-trap 'rm -rf ${run_info_tmp_dir} ${samplesheet_tmp_dir}' EXIT
+trap 'echo_stderr "bclconvert failed, cleaning up and exiting script with non-zero exit code \"$?\""; rm -rf ${run_info_tmp_dir} ${samplesheet_tmp_dir}' EXIT
 
 ## Create tmp files
 run_info_tmp_dir="$(mktemp -d)"
@@ -170,8 +181,10 @@ reads_json_str="$( \
   jq --raw-output --compact-output \
    '
      .reads
-   ' <<< "${input_json_file}"
+   ' < "${input_json_file}"
 )"
+# Needs to not exist
+rm "${run_info_tmp_file}"
 build-runinfo-xml-from-reads-json.sh "${reads_json_str}" "${run_info_tmp_file}"
 
 # Write out samplesheet
