@@ -87,7 +87,7 @@ jobs:
       - id: get_repository_and_index_url
         run: |
           pypi_repository="pypi"
-          pypi_repository_url="https://upload.pypi.org/"
+          pypi_repository_url="https://upload.pypi.org/legacy/"
           index_url="https://pypi.org/simple/"
           if [[ "${{ steps.is_pre_release.outputs.is_pre_release }}" == "true" ]]; then
             pypi_repository="testpypi"
