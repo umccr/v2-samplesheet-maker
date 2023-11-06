@@ -67,7 +67,7 @@ jobs:
       # Check tag is a valid tag and matched either dev or production groups
       - id: is_valid_regex_match
         run: |
-          if [[ ${{ steps.tag_regex_match_dev.outputs.match }} == "" && ${{ steps.tag_regex_match_prod.outputs.match }} == "" ]]; then
+          if [[ "${{ steps.tag_regex_match_dev.outputs.match }}" == "" && "${{ steps.tag_regex_match_prod.outputs.match }}" == "" ]]; then
             echo "Error! Tag regex did not match either development nor production regexes" 2>&1
             exit 1
           fi
