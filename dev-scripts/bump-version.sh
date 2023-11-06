@@ -149,9 +149,9 @@ fi
 if [[ "${is_prod}" == "true" ]]; then
   tag="${version_number}"
 elif [[ "${is_patch}" == "true" ]]; then
-  tag="${version_number}--patch-${DATE_STR}"
+  tag="${version_number}.post${DATE_STR}"
 elif [[ "${is_dev}" == "true" ]]; then
-  tag="${version_number}--dev-${DATE_STR}"
+  tag="${version_number}.dev${DATE_STR}"
 fi
 
 ## Get the current branch
