@@ -1,4 +1,4 @@
-name: build-package-wheel-and-release
+name: publish_pypi
 
 on:
   workflow_call:
@@ -9,9 +9,22 @@ on:
       pypi_repository:
         required: true
         type: string
+      pypi_repository_url:
+          required: true
+          type: string
       is_pre_release:
         required: true
         type: string
+      dist_artifacts_name:
+        required: true
+        type: string
+      dist_artifacts_path:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+
 
 permissions:
   id-token: write   # This is required for connecting to PYPI
@@ -19,30 +32,44 @@ permissions:
 
 jobs:
   deploy_to_pypi:
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
-      - id: git_checkout
-        uses: actions/checkout@4
-      # Used to host cibuildwheel
-      - id: setup_python
-        uses: actions/setup-python@v4
+      # Checkout repo
+      - uses: actions/checkout@v4
+
+      # Setup python
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - id: download_wheels
+
+      # Download wheels from artifacts dir
+      - name: Download Wheels
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.dist_artifacts_name }}
-      - id: install_deployment_deps
+          path: ${{ inputs.dist_artifacts_path }}
+
+      # Install deployment dependencies
+      - name: Install Deployment deps
         run: |
           pip install .[deploy]
-      - id: deploy_to_pypi
+
+      # Deploy to pypi
+      - name: Push to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: ${{ inputs.pypi_repository_url }}
+
+      # Wait for cache
+      - name: Sleep for Five Seconds
         run: |
-          if [[ "${{ inputs.is_pre_release }}" == "true" ]]; then
-            make push_test_pypi
-          else
-            make push_pypi
-          fi
-      - id: check_successful_deployment_to_pypi
+          sleep 5
+
+      # Check successful deployment to pypi
+      - name: Check Successful Deployment
+        env:
+          V2_SAMPLESHEET_MAKER_VERSION: ${{ inputs.git_tag }}
         run: |
           if [[ "${{ inputs.is_pre_release }}" == "true" ]]; then
             make install_test_pypi

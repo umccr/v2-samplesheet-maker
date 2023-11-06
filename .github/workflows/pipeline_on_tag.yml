@@ -1,8 +1,11 @@
+name: pipeline_on_tag
+
 on:
   push:
     tags:
       # Semver (with optional dev extension (-dev)
-      - 'v[0-9]+\.[0-9]+\.[0-9]+(?:-*)?'
+      # - 'v[0-9]+\.[0-9]+\.[0-9]+(?:-.*)?'
+      - 'v*'
 
 jobs:
   setup:
@@ -15,16 +18,31 @@ jobs:
       - name: Checkout code
         id: git_checkout
         uses: actions/checkout@v4
+
       # Get the tag based on the GITHUB REF env var
       - id: get_tag
         run: |
           echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
       # Check pre release regex match
-      - id: tag_regex_match
+      - id: tag_regex_match_dev
         uses: kaisugi/action-regex-match@v1.0.0
         with:
           text: ${{ steps.get_tag.outputs.tag }}
-          regex: '^v[0-9]+\.[0-9]+\.[0-9]+(-*)?$'
+          regex: '^v[0-9]+\.[0-9]+\.[0-9]+(\.dev[0-9]+)?$'
+      # Check pre release regex match
+      - id: tag_regex_match_prod
+        uses: kaisugi/action-regex-match@v1.0.0
+        with:
+          text: ${{ steps.get_tag.outputs.tag }}
+          regex: '^v[0-9]+\.[0-9]+\.[0-9]+(\.post[0-9]+)?$'
+
+      # Check tag regex match
+      - id: check_match
+        if: steps.check_tag.outputs.match == 'false'
+        run: |
+          echo "Tag not semver tag" 1>&2
+          exit 1
       - id: verify_versions
         run: |
           # Install toml
@@ -35,7 +53,7 @@ jobs:
           import toml
           with open("pyproject.toml", "r") as f_h:
               data = toml.load(f_h)
-          print(data.get("project").get("version"))
+          print("v"+data.get("project").get("version"))
           END
           )"
           
@@ -46,25 +64,38 @@ jobs:
             exit 1
           fi
 
+      # Check tag is a valid tag and matched either dev or production groups
+      - id: is_valid_regex_match
+        run: |
+          if [[ "${{ steps.tag_regex_match_dev.outputs.match }}" == "" && "${{ steps.tag_regex_match_prod.outputs.match }}" == "" ]]; then
+            echo "Error! Tag regex did not match either development nor production regexes" 2>&1
+            exit 1
+          fi
+
       # Is Pre Release
       - id: is_pre_release
         run: |
           is_pre_release="false"
-          if [[ -n "${{ steps.tag_regex_match.outputs.group1 }}" ]]; then
+          if [[ -n "${{ steps.tag_regex_match_dev.outputs.group1 }}" ]]; then
             is_pre_release="true"
           fi
           echo "is_pre_release=${is_pre_release}" >> "${GITHUB_OUTPUT}"
+
       # PyPi Outputs
       - id: get_repository_and_index_url
         run: |
           pypi_repository="pypi"
+          pypi_repository_url="https://upload.pypi.org/"
           index_url="https://pypi.org/simple/"
           if [[ "${{ steps.is_pre_release.outputs.is_pre_release }}" == "true" ]]; then
             pypi_repository="testpypi"
+            pypi_repository_url="https://test.pypi.org/legacy/"
             index_url="https://test.pypi.org/simple/"
           fi
           echo "pypi_repository=${pypi_repository}" >> "${GITHUB_OUTPUT}"
+          echo "pypi_repository_url=${pypi_repository_url}" >> "${GITHUB_OUTPUT}"
           echo "index_url=${index_url}" >> "${GITHUB_OUTPUT}"
+
       # Docker Container
       - id: get_docker_container_tags
         run: |
@@ -73,13 +104,55 @@ jobs:
             docker_container_uri_str_list="${docker_container_uri_str_list},ghcr.io/${{ github.repository }}:latest"
           fi
           echo "docker_container_uri_str_list=${docker_container_uri_str_list}" >> "${GITHUB_OUTPUT}"
+
+      # Get environment type
+      - id: get_environment
+        run: |
+          environment="development"
+          if [[ "${{ steps.is_pre_release.outputs.is_pre_release }}" == "false" ]]; then
+            environment="production"
+          fi
+          echo "environment=${environment}" >> "${GITHUB_OUTPUT}"
+
+      # Validate that if is_pre_release is false that the branch name startswith 'bump'
+      - id: get_branch_name
+        run: |
+          # Get branch name
+          raw="$( \
+            git branch --remotes --contains ${{ github.ref }} \
+          )"
+          echo "branch_name=${raw/origin\/}" >> "${GITHUB_OUTPUT}"
+
+      # Validate bump
+      - id: validate_branch
+        run: |
+          if [[ ! "${{ steps.get_branch_name.outputs.branch_name }}" =~ ^bump/.* && "${{ steps.is_pre_release.outputs.is_pre_release }}" == "false" ]]; then
+            echo "Error, production pushes must come from a 'bump' branch!" 2>&1
+            exit 1
+          fi
+
+      # Validate bump branch tag
+      - id: validate_bump_branch_tag
+        run: |
+          if [[ "${{ steps.get_branch_name.outputs.branch_name }}" =~ ^bump/.* && "${{ steps.is_pre_release.outputs.is_pre_release }}" == "false" ]]; then
+            # Running production env with bump branch
+            branch_name_without_bump="${branch_name#bump/}";
+            if [[ ! "${branch_name_without_bump}" == "${get_tag}" ]]; then
+              echo "Error, bump branch name was not the same as tag name got '${branch_name_without_bump}' and '${get_tag}'" 2>&1
+              exit 1
+            fi
+          fi
+
     # Set outputs of setup job
     outputs:
       git_tag: ${{ steps.get_tag.outputs.tag }}
       is_pre_release: ${{ steps.is_pre_release.outputs.is_pre_release }}
       pypi_repository: ${{ steps.get_repository_and_index_url.outputs.pypi_repository }}
+      pypi_repository_url: ${{ steps.get_repository_and_index_url.outputs.pypi_repository_url }}
       index_url: ${{ steps.get_repository_and_index_url.outputs.index_url }}
       docker_container_uri_str_list: ${{ steps.get_docker_container_tags.outputs.docker_container_uri_str_list }}
+      environment: ${{ steps.get_environment.outputs.environment }}
+      branch_name: ${{ steps.get_branch_name.outputs.branch_name }}
 
   # Run tests and generate report
   test:
@@ -96,9 +169,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-#      - id: upgrade_pip
-#        run: |
-#          pip install --upgrade pip
       - id: run_make_test
         run: |
           make test
@@ -138,11 +208,13 @@ jobs:
       - build_release
     uses: ./.github/workflows/publish_pypi.yml
     with:
-      is_pre_release: ${{ needs.setup.outputs.is_pre_release }}
       git_tag: ${{ needs.setup.outputs.git_tag }}
+      is_pre_release: ${{ needs.setup.outputs.is_pre_release }}
       pypi_repository: ${{ needs.setup.outputs.pypi_repository }}
+      pypi_repository_url: ${{ needs.setup.outputs.pypi_repository_url }}
       dist_artifacts_name: dist
       dist_artifacts_path: dist
+      environment: ${{ needs.setup.outputs.environment }}
 
   # Now build container
   build_container:
@@ -154,4 +226,34 @@ jobs:
       - publish_pypi
     uses: ./.github/workflows/build_container.yml
     with:
+      git_tag: ${{ needs.setup.outputs.git_tag }}
+      index_url: ${{ needs.setup.outputs.index_url }}
       docker_container_uri_str_list: ${{ needs.setup.outputs.docker_container_uri_str_list }}
+
+  # Now generate a PR
+  make_pull_request:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    needs:
+      - setup
+      - test
+      - build_package_wheels
+      - build_release
+      - publish_pypi
+      - build_container
+    if: ${{ needs.setup.outputs.is_pre_release == 'false' }}
+    steps:
+      # Complete git checkout
+      - uses: actions/checkout@v4
+
+      # Make a pull request
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ github.token }}
+          title: "Bump production version to ${{ needs.setup.outputs.git_tag }}"
+          branch: ${{ needs.setup.outputs.branch_name }}
+          delete-branch: true
+          base: "main"  # We are always making a PR to the main branch when updating versions
