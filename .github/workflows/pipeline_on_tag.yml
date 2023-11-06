@@ -18,6 +18,8 @@ jobs:
       - name: Checkout code
         id: git_checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # Get the tag based on the GITHUB REF env var
       - id: get_tag
@@ -119,8 +121,9 @@ jobs:
         run: |
           # Get branch name
           raw="$( \
-            git branch --remotes --contains ${{ github.ref }} \
+            git branch --remotes --contains "${{ github.ref }}" \
           )"
+          raw="${raw// /}"
           echo "branch_name=${raw/origin\/}" >> "${GITHUB_OUTPUT}"
 
       # Validate bump
