@@ -1,4 +1,4 @@
-name: build-package-wheel-and-release
+name: build_release
 
 on:
   workflow_call:
@@ -22,51 +22,39 @@ on:
 
 jobs:
   build_release:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-          - macos-latest
-          - windows-latest
-          - ubuntu-latest
-
+    runs-on: ubuntu-latest
     steps:
+      # Checkout repo
       - uses: actions/checkout@v4
 
-      # Used to host cibuildwheel
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.16.2
-
-      - name: Build wheels
-        run: python -m cibuildwheel --output-dir dist
-        # to supply options, put them in 'env', like:
-        # env:
-        #   CIBW_SOME_OPTION: value
-
+      # Download dist wheel and source dir
       - uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.dist_artifacts_name }}
+          path: ${{ inputs.dist_artifacts_path }}
 
+      # Download coverage report
       - uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.coverage_report_artifacts_name }}
 
-      - id: make_notes
+      # Generate release notes
+      - name: Make Notes File for Release
         run: |
           # Generate notes using tests
           echo "# ${{ inputs.git_tag }}" > notes.md
           echo "## Coverage Report" >> notes.md
+          echo '```' >> notes.md  # Wrap report in code format - start
           cat "${{ inputs.coverage_report_artifacts_path }}" >> notes.md
+          echo '```' >> notes.md  # Wrap report in code format - end
 
-      - id: make_release
+      # Upload as gh release
+      - name: Push Release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release create \
             "${{ inputs.git_tag }}" \
             --notes-file notes.md \
             --title "${{ inputs.git_tag }} release" \
-            ${{ inputs.dist_artifacts_path }}/*.yml
+            ${{ inputs.dist_artifacts_path }}/*
