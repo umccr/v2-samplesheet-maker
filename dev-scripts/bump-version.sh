@@ -232,3 +232,4 @@ git tag --annotate --message "Bumped version to '${tag}'" "${tag}"
 echo_stderr "Pushing branch and tag to GitHub"
 git push origin "${current_branch}"
 git push origin "${tag}"
+
