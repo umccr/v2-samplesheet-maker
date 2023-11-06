@@ -1,55 +1,31 @@
-
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = [ "setuptools>=61.0",]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "v2_samplesheet_maker"
-version = "0.0.3"
-authors = [
-  { name="Alexis Lucattini", email="alexis.lucattini@umccr.org" },
-]
+version = "4.2.4"
 description = "v2 SampleSheet maker"
 readme = "README.md"
 requires-python = ">=3.10"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
-dependencies = [
-    "docopt >= 0.6.2, < 1",
-    "pandas >= 2.1.2, < 3",
-    "pydantic >= 2.4.2, < 3",
-    "verboselogs >= 1.7, < 2",
-]
+classifiers = [ "Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License", "Operating System :: OS Independent",]
+dependencies = [ "docopt >= 0.6.2, < 1", "pandas >= 2.1.2, < 3", "pydantic >= 2.4.2, < 3", "verboselogs >= 1.7, < 2",]
+[[project.authors]]
+name = "Alexis Lucattini"
+email = "alexis.lucattini@umccr.org"
 
 [project.urls]
-"Homepage" = "https://github.com/umccr/v2-samplesheet-amker"
+Homepage = "https://github.com/umccr/v2-samplesheet-amker"
 "Bug Tracker" = "https://github.com/umccr/v2-samplesheet-maker/issues"
 
 [project.scripts]
 v2-samplesheet-maker = "v2_samplesheet_maker.run.v2_samplesheet_writer:main"
 
-# Shell scripts
-[tool.setuptools]
-script-files = [
-    "scripts/build-runinfo-xml-from-reads-json.sh",
-    "scripts/build-samplesheet-and-validate-with-bcl-convert.sh"
-]
-
 [project.optional-dependencies]
-test = [
-    "pytest",
-    "pytest-cov"
-]
-build = [
-    "build",
-]
-deploy = [
-    "twine"
-]
-toml = [
-    "toml"
-]
+test = [ "pytest", "pytest-cov",]
+build = [ "build",]
+deploy = [ "twine",]
+toml = [ "toml",]
 
+[tool.setuptools]
+script-files = [ "scripts/build-runinfo-xml-from-reads-json.sh", "scripts/build-samplesheet-and-validate-with-bcl-convert.sh",]
