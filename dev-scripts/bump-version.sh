@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 : '
 Bump version of v2 samplesheet maker
 
@@ -13,7 +15,7 @@ for dev we expect the next iterable
 GITHUB_ACTIONS_USERNAME="github-actions[bot]"
 GITHUB_ACTIONS_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
 
-REGEX="[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+"
+REGEX="v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+"
 DATE_STR="$(date "+%Y%m%d%H%M%S")"
 PROD_BRANCH="main"
 PYPROJECT_TOML_NAME="pyproject.toml"
@@ -46,6 +48,13 @@ Because of the settings in the production environment, this will 'halt' a workfl
 "
 }
 
+echo_stderr(){
+  : '
+  Write output to stderr
+  '
+  echo "${@}" 1>&2
+}
+
 get_this_path() {
   : '
   Mac users use greadlink over readlink
@@ -70,12 +79,12 @@ get_this_path() {
 PYPROJECT_TOML_PATH="$(dirname "$(get_this_path)")/${PYPROJECT_TOML_NAME}"
 
 ## Checks
-if ! git config --get user.name; then
+if ! git config --get user.name 1>/dev/null 2>&1; then
   echo_stderr "Please run git config user.name <username> and try again"
   print_help
 fi
 
-if ! git config --get user.email; then
+if ! git config --get user.email 1>/dev/null 2>&1; then
   echo_stderr "Please run git config user.email <user email> and try again"
   print_help
 fi
@@ -109,7 +118,7 @@ while [ $# -gt 0 ]; do
 done
 
 ## Check version regex
-if ! grep --line-regexp --extended-regexp "${REGEX}" <<< "${version_number}"; then
+if ! grep --line-regexp --extended-regexp "${REGEX}" 1>/dev/null 2>&1 <<< "${version_number}"; then
   echo_stderr "Version parameter '${version_number}' did not match semver"
   print_help
   exit 1
@@ -188,23 +197,23 @@ echo_stderr "Updating pyproject.toml"
 python3 - <<EOF
 
 # Imports
-import tomli
+import toml
 from pathlib import Path
 
 # Load external variables
-pyproject_toml_path = Path("${PYPROJECT_TOML_PATH}").absolute.resolve()
+pyproject_toml_path = Path("${PYPROJECT_TOML_PATH}").absolute().resolve()
 version_number = "${tag}".lstrip("v")
 
 # Open toml file
-with open(pyproject_toml_path, mode="rb") as toml_h:
+with open(pyproject_toml_path, mode="r") as toml_h:
     config = toml.load(toml_h)
 
 # Edit toml file
 config["project"]["version"] = version_number
 
 # Write out toml file
-with open(pyproject_toml_path, mode="wb") as toml_h:
-    config = toml.dump(toml_h)
+with open(pyproject_toml_path, mode="w") as toml_h:
+    toml.dump(config, toml_h)
 EOF
 
 ## Commit edit toml - use GitHub Actions bot for commit author
@@ -217,9 +226,10 @@ git commit -m "[bump-version.sh] Bumped version in toml to '${tag#v}'"
 ## Generate annotated tag - use standard user and email for this as we
 ## want to be able to trace who pushed the tag?
 echo_stderr "Creating annotated tag"
-git tag --annotate --message "Bumped version to '${tag}'"
+git tag --annotate --message "Bumped version to '${tag}'" "${tag}"
 
 ## Push commit and tag
 echo_stderr "Pushing branch and tag to GitHub"
 git push origin "${current_branch}"
 git push origin "${tag}"
+
