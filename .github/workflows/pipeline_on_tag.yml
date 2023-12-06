@@ -250,13 +250,13 @@ jobs:
     steps:
       # Complete git checkout
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.setup.outputs.branch_name }}
 
       # Make a pull request
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ github.token }}
-          title: "Bump production version to ${{ needs.setup.outputs.git_tag }}"
-          branch: ${{ needs.setup.outputs.branch_name }}
-          delete-branch: true
-          base: "main"  # We are always making a PR to the main branch when updating versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create --base "main" --title "Bump production version to ${{ needs.setup.outputs.git_tag }}"
