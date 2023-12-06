@@ -118,22 +118,22 @@ class BCLConvertSettingsSection(KVSection):
     """
     def __init__(
         self,
-        adapter_behavior: Optional[AdapterBehaviour],  # One of 'trim' / 'mask'
-        adapter_read_1: Optional[str],
-        adapter_read_2: Optional[str],
-        adapter_stringency: Optional[float],  # Float between 0.5 and 1.0
-        barcode_mismatches_index_1: Optional[int],  # 0, 1 or 2
-        barcode_mismatches_index_2: Optional[int],  # 0, 1 or 2
-        minimum_trimmed_read_length: Optional[int],
-        minimum_adapter_overlap: Optional[int],  # 1, 2, or 3
-        mask_short_reads: Optional[int],
-        override_cycles: Optional[str],  # Y151;N8;N10;Y151
-        trim_umi: Optional[bool],  # true or false (1, 0)
-        create_fastq_for_index_reads: Optional[bool],  # true or false (1, 0)
-        no_lane_splitting: Optional[bool],
-        fastq_compression_format: Optional[FastqCompressionFormat],
-        find_adapters_with_indels: Optional[bool],
-        independent_index_collision_check: Optional[List],
+        adapter_behavior: Optional[AdapterBehaviour] = None,  # One of 'trim' / 'mask'
+        adapter_read_1: Optional[str] = None,
+        adapter_read_2: Optional[str] = None,
+        adapter_stringency: Optional[float] = None,  # Float between 0.5 and 1.0
+        barcode_mismatches_index_1: Optional[int] = None,  # 0, 1 or 2
+        barcode_mismatches_index_2: Optional[int] = None,  # 0, 1 or 2
+        minimum_trimmed_read_length: Optional[int] = None,
+        minimum_adapter_overlap: Optional[int] = None,  # 1, 2, or 3
+        mask_short_reads: Optional[int] = None,
+        override_cycles: Optional[str] = None,  # Y151;N8;N10;Y151
+        trim_umi: Optional[bool] = None,  # true or false (1, 0)
+        create_fastq_for_index_reads: Optional[bool] = None,  # true or false (1, 0)
+        no_lane_splitting: Optional[bool] = None,
+        fastq_compression_format: Optional[FastqCompressionFormat] = None,
+        find_adapters_with_indels: Optional[bool] = None,
+        independent_index_collision_check: Optional[List] = None,
         *args,
         **kwargs
     ):

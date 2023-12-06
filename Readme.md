@@ -147,7 +147,7 @@ ensure that your indexes have an appropriate hamming distance.
 
 If you wish to validate your output samplesheet with BCLConvert, you can use the following script - 
 
-`scripts/test_bclconvert.sh <input-json> [docker-image]`. This will convert the input json to csv and then run the 
+`scripts/build-samplesheet-and-validate-with-bcl-convert.sh <input-json> [docker-image]`. This will convert the input json to csv and then run the 
 docker container bclconvert against your samplesheet.  
 
 You will need both jq and docker installed for this to work.
@@ -170,7 +170,7 @@ You can generate your own sections by
 We try and update this repository for every new Dragen Release (which coincides with a BCLConvert release) and tag accordingly.  
 
 [pipeline_on_tag_url]: https://github.com/umccr/v2-samplesheet-maker/workflows/pipeline_on_tag.yml
-[pipeline_on_tag_badge_svg_url]: https://github.com/umccr/v2-samplesheet-maker/workflows/pipeline_on_tag.yml/badge.svg
+[pipeline_on_tag_badge_svg_url]: https://github.com/umccr/v2-samplesheet-maker/actions/workflows/pipeline_on_tag.yml/badge.svg
 [badge_fury_url]: https://badge.fury.io/py/v2-samplesheet-maker
 [badge_fury_svg_url]: https://badge.fury.io/py/v2-samplesheet-maker.svg
 
