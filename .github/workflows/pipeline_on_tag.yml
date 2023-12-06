@@ -259,4 +259,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr create --base "main" --title "Bump production version to ${{ needs.setup.outputs.git_tag }}"
+          gh pr create \
+            --base "main" \
+            --title "Bump production version to ${{ needs.setup.outputs.git_tag }}" \
+            --body "Updated pyproject.toml to use ${{ needs.setup.outputs.git_tag }}" 
