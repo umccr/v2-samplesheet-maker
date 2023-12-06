@@ -15,7 +15,7 @@ name = "Alexis Lucattini"
 email = "alexis.lucattini@umccr.org"
 
 [project.urls]
-Homepage = "https://github.com/umccr/v2-samplesheet-amker"
+Homepage = "https://github.com/umccr/v2-samplesheet-maker"
 "Bug Tracker" = "https://github.com/umccr/v2-samplesheet-maker/issues"
 
 [project.scripts]
