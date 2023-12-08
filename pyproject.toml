@@ -4,13 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "v2_samplesheet_maker"
-version = "4.2.4.post20231206211301"
+version = "4.2.4.post20231208143331"
 description = "v2 SampleSheet maker"
 readme = "Readme.md"
 requires-python = ">=3.10"
 classifiers = [ "Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License", "Operating System :: OS Independent",]
 dependencies = [ "docopt >= 0.6.2, < 1", "pandas >= 2.1.2, < 3", "pydantic >= 2.4.2, < 3", "verboselogs >= 1.7, < 2",]
-
 [[project.authors]]
 name = "Alexis Lucattini"
 email = "alexis.lucattini@umccr.org"
