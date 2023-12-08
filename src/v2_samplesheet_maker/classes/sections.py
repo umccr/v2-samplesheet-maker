@@ -284,7 +284,20 @@ class BCLConvertDataSection(DataFrameSection):
                 lambda bclconvert_datarow: bclconvert_datarow.to_series(),
                 self.bclconvert_datarows
             )
-        ).dropna(how="all", axis="columns")
+        ).dropna(
+            how="all", axis="columns"
+        )
+
+        # Set order
+        order_list = []
+        if 'Lane' in self.section_df.columns.tolist():
+            order_list.append('Lane')
+
+        if 'Sample_ID' in self.section_df.columns.tolist():
+            order_list.append('Sample_ID')
+
+        # Re order Dataframe
+        self.section_df = self.section_df.sort_values(by=order_list)
 
     @classmethod
     def get_bclconvert_datarows_from_list(cls, bclconvert_data_row_list: List[Dict]):
