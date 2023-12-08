@@ -89,6 +89,14 @@ if ! git config --get user.email 1>/dev/null 2>&1; then
   print_help
 fi
 
+## Check toml
+if ! python3 -c 'import toml' 1>/dev/null 2>&1; then
+  echo_stderr "Python toml not installed"
+  echo_stderr "You can install toml by running 'pip install .[toml]'"
+  exit 1
+fi
+
+
 ## Get args
 version_number=""
 is_dev="false"
@@ -155,10 +163,10 @@ if [[ "${is_prod}" == "true" && "${is_patch}" == "false" ]]; then
 fi
 
 ## Get tag name
-if [[ "${is_prod}" == "true" ]]; then
-  tag="${version_number}"
-elif [[ "${is_patch}" == "true" ]]; then
+if [[ "${is_patch}" == "true" ]]; then
   tag="${version_number}.post${DATE_STR}"
+elif [[ "${is_prod}" == "true" ]]; then
+  tag="${version_number}"
 elif [[ "${is_dev}" == "true" ]]; then
   tag="${version_number}.dev${DATE_STR}"
 fi
@@ -184,12 +192,6 @@ if [[ "${is_prod}" == "true" ]]; then
 
   # Set the current branch to the new branch
   current_branch="$(git branch --show-current)"
-fi
-
-## Check toml
-if ! python3 -c 'import toml' 1>/dev/null 2>&1; then
-  echo_stderr "Python toml not installed"
-  echo_stderr "You can install toml by running 'pip install .[toml]'"
 fi
 
 ## Update toml
