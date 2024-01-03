@@ -7,7 +7,12 @@ from pathlib import Path
 from typing import Dict, Optional
 
 # Relative modules
-from .sections import HeaderSection, ReadsSection, BCLConvertSettingsSection, BCLConvertDataSection
+from section_classes.run_info_sections import (
+    HeaderSection, ReadsSection
+)
+from section_classes.bcl_convert_sections import (
+    BCLConvertSettingsSection, BCLConvertDataSection
+)
 
 # Relative subpackages
 from ..utils.logger import get_logger
@@ -38,7 +43,7 @@ class SampleSheet:
             elif section_name.lower() == "bclconvert_settings":
                 self.bclconvert_settings_section = BCLConvertSettingsSection(**section_dict_or_list)
             elif section_name.lower() == "bclconvert_data":
-                self.bclconvert_data_section = BCLConvertDataSection.get_bclconvert_datarows_from_list(section_dict_or_list)
+                self.bclconvert_data_section = BCLConvertDataSection(*section_dict_or_list)
             else:
                 logger.error(f"Did not get a known section name '{section_name}' is not a known section name")
 

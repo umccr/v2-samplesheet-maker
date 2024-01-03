@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-
-from typing import Dict, Any, Optional
+from copy import deepcopy
+from typing import Dict, Any, Optional, List
 import pandas as pd
+from pydantic import BaseModel
 
 # Relative subpackges
 from ..utils.logger import get_logger
 
+# Get logger
 logger = get_logger()
 
 """
@@ -18,7 +20,22 @@ class Section:
     """
     Super Class for each section
     """
+
+    _model: Optional[BaseModel] = None
+
     def __init__(self, *args, **kwargs):
+
+        # Assign both
+        kwargs_list = deepcopy(kwargs)
+
+        for key in self._model.model_fields.keys():
+            if key in kwargs_list.keys():
+                setattr(self, key, kwargs.pop(key))
+            else:
+                # Set value to None
+                setattr(self, key, None)
+
+        # Log any keys that still exist that aren't in the model
         self.log_untouched_options(*args, **kwargs)
 
     def _build_section(self) -> Any:
@@ -49,7 +66,7 @@ class Section:
         Validate inputs against pydantic model of class
         :return:
         """
-        raise NotImplementedError
+        self._model.model_validate(self)
 
 
 class KVSection(Section):
@@ -62,14 +79,46 @@ class KVSection(Section):
         super().__init__(*args, **kwargs)
         self.section_dict = None
 
-    def _build_section(self) -> Dict:
+        # Validate model after initialising inputs
+        self.validate_model()
+
+        # Coerce objects
+        self.coerce_values()
+
+        # Build section dict
+        self.build_section_dict()
+
+    def _build_section(self):
         return self.build_section_dict()
 
-    def build_section_dict(self) -> Dict:
-        raise NotImplementedError
+    def coerce_values(self):
+        # Collect original objects
+        dict_object = {
+            kv[0]: kv[1]
+            for kv in filter(
+                lambda kv_iter: not kv_iter[0] == "section_dict",
+                self.__dict__.items())
+        }
 
-    @staticmethod
-    def filter_dict(initial_dict) -> Dict:
+        # Coerce with model dump
+        coerced_dict = self._model(**dict_object).model_dump()
+
+        for key, value in coerced_dict.items():
+            self.__setattr__(key, value)
+
+    def build_section_dict(self):
+        # Collect original objects
+        dict_object = {
+            kv[0]: kv[1]
+            for kv in filter(
+                lambda kv_iter: not kv_iter[0] == "section_dict",
+                self.__dict__.items())
+        }
+
+        self.section_dict = self._model(**dict_object).to_dict()
+        self.section_dict = self.filter_dict(self.section_dict)
+
+    def filter_dict(self, initial_dict) -> Dict:
         """
         Filter out any values that are None
         :param initial_dict:
@@ -93,12 +142,26 @@ class KVSection(Section):
             )
         ) + "\n"
 
-    def validate_model(self):
-        """
-        Validate inputs against pydantic model of class
-        :return:
-        """
-        # Implemented in subclass
+
+class DataFrameSectionRow(KVSection):
+    """
+    Abstract class for a row of a DataFrame section
+    """
+
+    _model: Optional[BaseModel] = None
+
+    def to_series(self):
+        return pd.Series(
+            dict(
+                filter(
+                    lambda kv: kv[1] is not None,
+                    self.section_dict.items()
+                )
+            )
+        )
+
+    def to_string(self):
+        # Cannot use to-string for SectionRow
         raise NotImplementedError
 
 
@@ -107,20 +170,47 @@ class DataFrameSection(Section):
     DataFrame Section
     A DataFrame section is able to be imported into pandas
     """
+
+    _row_obj: Optional[BaseModel] = None
+
     def __init__(self, *args, **kwargs):
         """
         Section Dataframe
         :param section_df:
         """
-        # Set section format
-        super().__init__(*args, **kwargs)
-        self.section_df: Optional[pd.DataFrame] = None
+        # Assign args to data_rows
+        data_rows = args
 
-    def _build_section(self) -> pd.DataFrame:
+        # Set section format
+        super().__init__()
+
+        # Initialise vars
+        self.section_df: Optional[pd.DataFrame] = None
+        self.data_rows: Optional[List[DataFrameSectionRow]] = list(
+            map(
+                lambda data_row_dict_iter: self._row_obj(**data_row_dict_iter),
+                data_rows
+            )
+        )
+
+        # Build section dataframe
+        self.build_section_df()
+
+    def _build_section(self):
         return self.build_section_df()
 
-    def build_section_df(self) -> pd.DataFrame:
-        raise NotImplementedError
+    def build_section_df(self):
+        # Convert list of
+        self.section_df = pd.DataFrame(
+            map(
+                lambda data_row: data_row.to_series(),
+                self.data_rows
+            )
+        ).dropna(
+            how="all", axis="columns"
+        )
+
+        self.order_rows()
 
     def to_string(self):
         # Write out the dataframe as a dataframe section
@@ -131,6 +221,29 @@ class DataFrameSection(Section):
             index=False,
             lineterminator="\n"
         )
+
+    def order_rows(self):
+        """
+        Define which columns should be used to order the rows
+        :return:
+        """
+
+        if not hasattr(self._model, "row_order_columns"):
+            return
+
+        # Get order list of columns in list
+        order_list = list(
+            filter(
+                lambda order_col_iter: order_col_iter in self._model.row_order_columns,
+                self.section_df.columns
+            )
+        )
+
+        if len(order_list) == 0:
+            return
+
+        # Order rows by values in order list
+        self.section_df = self.section_df.sort_values(by=order_list)
 
     def validate_model(self):
         """

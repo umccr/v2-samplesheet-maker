@@ -3,9 +3,12 @@
 from copy import deepcopy
 from pydantic import ValidationError
 
-from v2_samplesheet_maker.classes.sections import (
+from v2_samplesheet_maker.section_classes.run_info_sections import (
     HeaderSection,
-    ReadsSection,
+    ReadsSection
+)
+
+from v2_samplesheet_maker.section_classes.bcl_convert_sections import (
     BCLConvertSettingsSection,
     BCLConvertDataRow,
     BCLConvertDataSection,

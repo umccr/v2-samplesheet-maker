@@ -3,13 +3,9 @@
 from typing import Optional
 from pydantic import BaseModel
 
-# Relative modules
-from .sections import (
-    HeaderSectionModel,
-    ReadsSectionModel,
-    BCLConvertSettingsSectionModel,
-    BCLConvertDataSectionModel
-)
+# Relative imports
+from .run_info_sections import HeaderSectionModel, ReadsSectionModel
+from .bcl_convert_sections import BCLConvertSettingsSectionModel, BCLConvertDataSectionModel
 
 
 class SampleSheetModel(BaseModel):
