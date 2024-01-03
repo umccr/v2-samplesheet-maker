@@ -5,7 +5,9 @@ Define each of the available section_classes
 """
 
 # Relative modules
-from classes.super_sections import KVSection, DataFrameSection, DataFrameSectionRow
+from ..classes.super_sections import (
+    KVSection, DataFrameSection, DataFrameSectionRow
+)
 
 # Relative subpackages
 from ..models.bcl_convert_sections import (
@@ -23,6 +25,9 @@ class BCLConvertSettingsSection(KVSection):
 
     # Set model
     _model = BCLConvertSettingsSectionModel
+
+    # Set class name and header
+    _class_header = "BCLConvert_Settings"
 
 
 class BCLConvertDataRow(DataFrameSectionRow):
@@ -42,3 +47,6 @@ class BCLConvertDataSection(DataFrameSection):
     # Set model
     _model = BCLConvertDataSectionModel
     _row_obj = BCLConvertDataRow
+
+    # Set class name and Header
+    _class_header = "BCLConvert_Data"

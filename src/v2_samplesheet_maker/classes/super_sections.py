@@ -16,12 +16,29 @@ Here we define the growing list of samplesheet section formats
 """
 
 
+def log_untouched_options(*args, **kwargs):
+    """
+    Show all of the parameters passed that were not used
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    for arg in list(*args):
+        logger.warning(f"Postional argument '{arg}' was not used")
+
+    for kwarg_key, kwarg_value in dict(**kwargs).items():
+        logger.warning(f"Keyword argument '{kwarg_key}={kwarg_value}' was not used")
+
+
 class Section:
     """
     Super Class for each section
     """
 
     _model: Optional[BaseModel] = None
+    _is_cloud: Optional[bool] = False
+    _class_header: Optional[str] = None
+    _class_name: Optional[str] = None
 
     def __init__(self, *args, **kwargs):
 
@@ -36,7 +53,7 @@ class Section:
                 setattr(self, key, None)
 
         # Log any keys that still exist that aren't in the model
-        self.log_untouched_options(*args, **kwargs)
+        log_untouched_options(*args, **kwargs)
 
     def _build_section(self) -> Any:
         raise NotImplementedError
@@ -48,25 +65,27 @@ class Section:
         """
         raise NotImplementedError
 
-    def log_untouched_options(self, *args, **kwargs):
-        """
-        Show all of the parameters passed that were not used
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        for arg in list(*args):
-            logger.warning(f"Postional argument '{arg}' was not used")
-
-        for kwarg_key, kwarg_value in dict(**kwargs).items():
-            logger.warning(f"Keyword argument '{kwarg_key}={kwarg_value}' was not used")
-
     def validate_model(self):
         """
         Validate inputs against pydantic model of class
         :return:
         """
         self._model.model_validate(self)
+
+    def write_section(self, file_h, add_new_line_after_section=True):
+        """
+        Write the section as a string
+        :return:
+        """
+        # Write the class header
+        file_h.write(
+            f"[{self._class_header}]" + "\n"
+        )
+
+        # Write out the section as a string
+        file_h.write(
+            self.to_string() + ("\n" if add_new_line_after_section is True else "")
+        )
 
 
 class KVSection(Section):
@@ -165,6 +184,15 @@ class DataFrameSectionRow(KVSection):
         raise NotImplementedError
 
 
+class CloudKVSection(KVSection):
+    is_cloud = True
+
+    def __init__(self, *args, **kwargs):
+        self.urn = kwargs.pop("urn")
+        self.pipeline_name = kwargs.pop("pipeline_name")
+        super().__init__(*args, **kwargs)
+
+
 class DataFrameSection(Section):
     """
     DataFrame Section
@@ -252,3 +280,11 @@ class DataFrameSection(Section):
         """
         # Implemented in subclass
         raise NotImplementedError
+
+
+class CloudDataFrameSection(DataFrameSection):
+    is_cloud = True
+
+    def __init__(self, *args, **kwargs):
+        self.pipeline_name = kwargs.pop("pipeline_name")
+        super().__init__(*args, **kwargs)

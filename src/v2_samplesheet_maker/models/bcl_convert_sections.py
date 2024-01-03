@@ -47,7 +47,7 @@ class BCLConvertSettingsSectionModel(BaseModel):
             "NoLaneSplitting": self.no_lane_splitting,
             "FastqCompressionFormat": self.fastq_compression_format.value if self.fastq_compression_format is not None else None,
             "FindAdaptersWithIndels": self.find_adapters_with_indels,
-            "IndependentIndexCollisionCheck": self.independent_index_collision_check
+            "IndependentIndexCollisionCheck": ";".join(self.independent_index_collision_check) if self.independent_index_collision_check is not None else None
         }
 
 
