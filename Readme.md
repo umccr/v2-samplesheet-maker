@@ -169,13 +169,13 @@ You can generate your own sections by
 
 We try and update this repository for every new Dragen Release (which coincides with a BCLConvert release) and tag accordingly.  
 
-[pipeline_on_tag_url]: https://github.com/umccr/v2-samplesheet-maker/workflows/pipeline_on_tag.yml
+[pipeline_on_tag_url]: https://github.com/umccr/v2-samplesheet-maker/actions/workflows/pipeline_on_tag.yml
 [pipeline_on_tag_badge_svg_url]: https://github.com/umccr/v2-samplesheet-maker/actions/workflows/pipeline_on_tag.yml/badge.svg
 [badge_fury_url]: https://badge.fury.io/py/v2-samplesheet-maker
 [badge_fury_svg_url]: https://badge.fury.io/py/v2-samplesheet-maker.svg
 
 [section_models_file]: src/v2_samplesheet_maker/models/sections.py
 [samplesheet_models_file]: src/v2_samplesheet_maker/models/samplesheet.py
-[section_class_file]: src/v2_samplesheet_maker/classes/sections.py
+[section_class_file]: src/v2_samplesheet_maker/section_classes/sheet_sections.py
 [samplesheet_class_file]: src/v2_samplesheet_maker/classes/samplesheet.py
 [test_sections_file]: tests/v2_samplesheet_maker/classes/test_sections.py
