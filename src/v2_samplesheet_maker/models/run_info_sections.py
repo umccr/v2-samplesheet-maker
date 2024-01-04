@@ -14,6 +14,7 @@ class HeaderSectionModel(BaseModel):
     run_description: Optional[str]
     instrument_platform: Optional[str]
     instrument_type: Optional[str]
+    index_orientation: Optional[str]
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -23,7 +24,8 @@ class HeaderSectionModel(BaseModel):
             "RunName": self.run_name,
             "RunDescription": self.run_description,
             "InstrumentPlatform": self.instrument_platform,
-            "InstrumentType": self.instrument_type
+            "InstrumentType": self.instrument_type,
+            "IndexOrientation": self.index_orientation
         }
 
 
@@ -49,7 +51,9 @@ class SequencingSectionModel(BaseModel):
     custom_index_2_primer: Optional[bool]
     custom_read_1_primer: Optional[bool]
     custom_read_2_primer: Optional[bool]
-    library_prep_kits: Optional[List]
+    library_prep_kits: Optional[List[str]]
+
+    model_config = ConfigDict(from_attributes=True)
 
     def to_dict(self):
         return {

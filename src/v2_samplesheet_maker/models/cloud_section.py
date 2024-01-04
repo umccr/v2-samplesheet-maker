@@ -7,8 +7,6 @@ PyDantic Schemas for each of the classes
 from typing import Optional, List, ClassVar, Dict
 from pydantic import BaseModel, ConfigDict
 
-from ..classes.super_sections import CloudKVSection, CloudDataFrameSection
-
 
 class CloudSettingsSectionModel(BaseModel):
     # Standard options
@@ -24,7 +22,6 @@ class CloudSettingsSectionModel(BaseModel):
         initial_dict = {
             "GeneratedVersion": self.generated_version,
             "Cloud_Workflow": self.cloud_workflow,
-            "BCLConvert_Pipeline": self.bclconvert_pipeline,
         }
         if self.analysis_urns is None:
             return initial_dict
@@ -43,6 +40,17 @@ class CloudDataSectionRowModel(BaseModel):
     library_name: Optional[str]
     library_prep_kit_name: Optional[str]
     index_adapter_kit_name: Optional[str]
+
+    model_config = ConfigDict(from_attributes=True)
+
+    def to_dict(self):
+        return {
+            "Sample_ID": self.sample_id,
+            "ProjectName": self.project_name,
+            "libraryName": self.library_name,
+            "LibraryPrepKitName": self.library_prep_kit_name,
+            "IndexAdapterKitName": self.index_adapter_kit_name
+        }
 
 
 class CloudDataSectionModel(BaseModel):

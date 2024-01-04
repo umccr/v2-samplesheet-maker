@@ -28,6 +28,9 @@ class BCLConvertSettingsSectionModel(BaseModel):
     find_adapters_with_indels: Optional[bool]
     independent_index_collision_check: Optional[List]
 
+    # Software version required when running through autolaunch
+    software_version: Optional[str]
+
     model_config = ConfigDict(from_attributes=True)
 
     def to_dict(self):
@@ -47,7 +50,8 @@ class BCLConvertSettingsSectionModel(BaseModel):
             "NoLaneSplitting": self.no_lane_splitting,
             "FastqCompressionFormat": self.fastq_compression_format.value if self.fastq_compression_format is not None else None,
             "FindAdaptersWithIndels": self.find_adapters_with_indels,
-            "IndependentIndexCollisionCheck": ";".join(self.independent_index_collision_check) if self.independent_index_collision_check is not None else None
+            "IndependentIndexCollisionCheck": ";".join(self.independent_index_collision_check) if self.independent_index_collision_check is not None else None,
+            "SoftwareVersion": self.software_version
         }
 
 
