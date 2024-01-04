@@ -10,3 +10,7 @@ class FastqCompressionFormat(Enum):
     GZIP = "gzip"
     DRAGEN = "dragen"
     DRAGEN_INTERLEAVED = "dragen-interleaved"
+
+
+class TSO500LSampleType(Enum):
+    DNA = "DNA"
