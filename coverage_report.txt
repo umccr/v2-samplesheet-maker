@@ -14,7 +14,7 @@ Name                                                               Stmts   Miss 
 src/v2_samplesheet_maker/__init__.py                                   0      0   100%
 src/v2_samplesheet_maker/classes/__init__.py                           0      0   100%
 src/v2_samplesheet_maker/classes/samplesheet.py                       75     20    73%
-src/v2_samplesheet_maker/classes/super_sections.py                   109     22    80%
+src/v2_samplesheet_maker/classes/super_sections.py                   111     23    79%
 src/v2_samplesheet_maker/enums.py                                     10      0   100%
 src/v2_samplesheet_maker/globals.py                                    0      0   100%
 src/v2_samplesheet_maker/models/__init__.py                            0      0   100%
@@ -30,11 +30,11 @@ src/v2_samplesheet_maker/section_classes/cloud_sections.py            29     13 
 src/v2_samplesheet_maker/section_classes/run_info_sections.py         12      0   100%
 src/v2_samplesheet_maker/section_classes/tso500l_sections.py          20      2    90%
 src/v2_samplesheet_maker/utils/__init__.py                             0      0   100%
-src/v2_samplesheet_maker/utils/cli.py                                 32      3    91%
+src/v2_samplesheet_maker/utils/cli.py                                 33      3    91%
 src/v2_samplesheet_maker/utils/docopt_docs.py                          2      2     0%
-src/v2_samplesheet_maker/utils/logger.py                              34     15    56%
+src/v2_samplesheet_maker/utils/logger.py                              37      8    78%
 --------------------------------------------------------------------------------------
-TOTAL                                                                506    119    76%
+TOTAL                                                                512    113    78%
 
 
-============================== 22 passed in 0.90s ==============================
+============================== 22 passed in 0.91s ==============================

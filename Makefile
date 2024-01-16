@@ -1,3 +1,5 @@
+SHELL=/bin/bash -o pipefail
+
 # Run tests
 test:
 	@pip install .[test]
