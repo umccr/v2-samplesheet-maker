@@ -61,6 +61,7 @@ def is_cloud_section_name(section_name: str) -> bool:
             not section_name.lower() == "cloud_data"
     )
 
+
 class SampleSheet:
     """
     SampleSheet object class
@@ -84,7 +85,9 @@ class SampleSheet:
         CloudTSO500LDataSection,
     ]
 
-    # Import Cloud settings last so we can copy over the urns from each of the settings
+    # Import Cloud settings last
+    # so we can copy over the urns from each of the settings
+    # Cloud_Data should also be last so we can
     _import_sections_order = [
         section_item
         for section_item in _all_sections
@@ -143,6 +146,19 @@ class SampleSheet:
     def populate_sections(self, sections_dict_as_list):
         # We place urns inside the settings of the application, these are then moved to the Cloud_Settings section
         cloud_analysis_urns_dict = {}
+        cloud_data_list: List[Dict] = []
+        urs_bool_list: Dict = {}
+        has_bclconvert_urn = False
+
+        # Check first if there's a cloud data section
+        has_cloud_data_section = any(
+            [
+                get_stripped_section_name(section_name_iter) == "cloud_data"
+                for section_dict_iter in sections_dict_as_list
+                for section_name_iter in section_dict_iter.keys()
+            ]
+        )
+
         # Iterate over sections dict
         for section_dict in sections_dict_as_list:
             # Iterate over single dict
@@ -170,6 +186,7 @@ class SampleSheet:
                             "analysis_urns": cloud_analysis_urns_dict
                         }
                     )
+
                 if issubclass(section_type, KVSection):
                     setattr(self, f"{section_type._class_header.lower()}_section", section_type(**section_dict_or_list))
                 elif issubclass(section_type, DataFrameSection):
@@ -178,15 +195,35 @@ class SampleSheet:
                     logger.error(f"Section Type {section_type._class_header} for section name {section_name} is neither a key-value section nor a data section")
                     raise ValueError
 
+                # Collect the section object
+                section_obj = getattr(self, f"{section_type._class_header.lower()}_section")
+
+                # Update the cloud analysis urns dict
                 if is_cloud_name and issubclass(section_type, KVSection):
-                    section_obj = getattr(self, f"{section_type._class_header.lower()}_section")
                     if hasattr(section_obj, "urn"):
                         cloud_analysis_urns_dict.update(
                             {
                                 "Cloud_" + section_type._class_header.rstrip("_Settings") + "_Pipeline": getattr(section_obj, "urn")
                             }
                         )
+                        urs_bool_list[stripped_section_name.replace("_settings", "_data")] = True
+                elif stripped_section_name == "bclconvert_settings":
+                    if hasattr(section_obj, "urn") and section_obj.urn is not None:
+                        urs_bool_list[stripped_section_name.replace("_settings", "_data")] = True
+                        cloud_analysis_urns_dict.update(
+                            {
+                                "BCLConvert_Pipeline": getattr(section_obj, "urn")
+                            }
+                        )
 
+                # Update the Cloud Data section if no Cloud_Data section
+                if (
+                        urs_bool_list.get(stripped_section_name, False) and
+                        not has_cloud_data_section
+                ):
+                    # Coerce section type
+                    section_type: BCLConvertDataSection
+                    setattr(self, f"cloud_data_section", CloudDataSection(*section_type(*section_dict_or_list).get_cloud_data_list()))
         # Set section list
         self.section_list = list(
             map(

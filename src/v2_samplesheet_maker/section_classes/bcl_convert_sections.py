@@ -38,6 +38,10 @@ class BCLConvertDataRow(DataFrameSectionRow):
     # Set model
     _model = BCLConvertDataRowModel
 
+    def get_cloud_data_row(self):
+        # Collect original objects
+        return self._model(**self.get_dict_object()).get_cloud_data_section_row()
+
 
 class BCLConvertDataSection(DataFrameSection):
     """
@@ -50,3 +54,11 @@ class BCLConvertDataSection(DataFrameSection):
 
     # Set class name and Header
     _class_header = "BCLConvert_Data"
+
+    def get_cloud_data_list(self):
+        return list(
+            map(
+                lambda row_iter: self._row_obj(**row_iter).get_cloud_data_row(),
+                self._raw_args
+            )
+        )

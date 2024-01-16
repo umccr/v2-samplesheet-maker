@@ -4,6 +4,7 @@
 PyDantic Schemas for each of the classes
 """
 from typing import Optional, List, ClassVar
+
 from pydantic import BaseModel, ConfigDict
 
 # Relative packages
@@ -28,8 +29,10 @@ class BCLConvertSettingsSectionModel(BaseModel):
     find_adapters_with_indels: Optional[bool]
     independent_index_collision_check: Optional[List]
 
-    # Software version required when running through autolaunch
+    # Software version required when running through auto-launch
+    # Urn also required when running through auto-launch on BaseSpace
     software_version: Optional[str]
+    urn: Optional[str]
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -71,6 +74,14 @@ class BCLConvertDataRowModel(BaseModel):
     adapter_behavior: Optional[AdapterBehaviour]
     adapter_stringency: Optional[float]
 
+    # Cloud Data
+    # If URN is specified in BCLConvert_Settings
+    # and no Cloud_Data section is specified we add in the Cloud_Data section for each sample
+    # Sample_ID is obvs just sample_id
+    # LibraryName is <Sample_ID>_<index>_<index2>
+    library_prep_kit_name: Optional[str]
+    index_adapter_kit_name: Optional[str]
+
     model_config = ConfigDict(from_attributes=True)
 
     def to_dict(self):
@@ -92,6 +103,34 @@ class BCLConvertDataRowModel(BaseModel):
             "AdapterStringency": self.adapter_stringency
         }
 
+    def get_cloud_data_section_row(self):
+        """
+        Special case for populating cloud data section when BCLConvert URN is specified
+        but not cloud data section is specified
+        :return:
+        """
+        # library name is combination of sample_id, index and index2
+        library_name = "_".join(
+            map(
+                str,
+                filter(
+                    lambda filter_iter: filter_iter is not None,
+                    [
+                        getattr(self, "sample_id", None),
+                        getattr(self, "index", None),
+                        getattr(self, "index2", None)
+                    ]
+                )
+            )
+        )
+
+        return {
+            "sample_id": self.sample_id,
+            "library_name": library_name,
+            "library_prep_kit_name": self.library_prep_kit_name,
+            "index_adapter_kit_name": self.index_adapter_kit_name
+        }
+
 
 class BCLConvertDataSectionModel(BaseModel):
     # Set data rows
@@ -99,5 +138,4 @@ class BCLConvertDataSectionModel(BaseModel):
 
     # Set row order columns
     row_order_columns: ClassVar[List] = ["Lane", "Sample_ID"]
-
     model_config = ConfigDict(from_attributes=True)
