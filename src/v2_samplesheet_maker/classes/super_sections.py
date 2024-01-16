@@ -3,6 +3,7 @@ from copy import deepcopy
 from typing import Dict, Any, Optional, List
 import pandas as pd
 from pydantic import BaseModel
+import warnings
 
 # Relative subpackges
 from ..utils.logger import get_logger
@@ -48,9 +49,17 @@ class Section:
         """
         for arg in list(args):
             logger.warning(f"Postional argument '{arg}' was not used for {self._model}")
+            warnings.warn(
+                f"Postional argument '{arg}' was not used for {self._model}",
+                UserWarning
+            )
 
         for kwarg_key, kwarg_value in dict(**kwargs).items():
             logger.warning(f"Keyword argument '{kwarg_key}={kwarg_value}' was not used for {self._model}")
+            warnings.warn(
+                f"Keyword argument '{kwarg_key}={kwarg_value}' was not used for {self._model}",
+                UserWarning,
+            )
 
     def _build_section(self) -> Any:
         raise NotImplementedError

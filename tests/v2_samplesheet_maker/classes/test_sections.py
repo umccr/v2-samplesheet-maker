@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-
+import logging
 from copy import deepcopy
+
+import pytest
 from pydantic import ValidationError
 
 from v2_samplesheet_maker.section_classes.run_info_sections import (
@@ -42,7 +44,8 @@ class TestHeaderSection:
         HeaderSection(**self.valid_header_section_dict)
 
     def test_header_section_with_extra_params(self):
-        HeaderSection(**self.valid_header_section_dict_extra_params)
+        with pytest.warns(UserWarning):
+            HeaderSection(**self.valid_header_section_dict_extra_params)
 
     def test_invalid_header_section_dict(self):
         try:
@@ -78,7 +81,8 @@ class TestReadsSection:
         ReadsSection(**self.valid_reads_section_dict)
 
     def test_reads_section_with_extra_params(self):
-        ReadsSection(**self.valid_reads_section_dict_extra_params)
+        with pytest.warns(UserWarning):
+            ReadsSection(**self.valid_reads_section_dict_extra_params)
 
     def test_invalid_reads_section_dict(self):
         try:
@@ -126,7 +130,8 @@ class TestBCLConvertSettingsSection:
         BCLConvertSettingsSection(**self.valid_bclconvert_settings_section_dict)
 
     def test_bclconvert_settings_section_with_extra_params(self):
-        BCLConvertSettingsSection(**self.valid_bclconvert_settings_section_dict_extra_params)
+        with pytest.warns(UserWarning):
+            BCLConvertSettingsSection(**self.valid_bclconvert_settings_section_dict_extra_params)
 
     def test_invalid_bclconvert_settings_section_dict(self):
         try:
@@ -185,11 +190,8 @@ class TestBCLConvertDataRow:
         BCLConvertDataRow(**self.valid_bclconvert_data_row)
 
     def test_bclconvert_data_row_with_extra_params(self):
-        try:
+        with pytest.warns(UserWarning):
             BCLConvertDataRow(**self.bclconvert_data_row_with_extra_params)
-            assert False
-        except (TypeError, ValidationError):
-            assert True
 
     def test_bclconvert_data_row_with_settings(self):
         BCLConvertDataRow(**self.valid_bclconvert_data_row_with_settings)
@@ -247,16 +249,13 @@ class TestBCLConvertDataSection:
 
     def test_bclconvert_data_section(self):
         # Get valid standard data
-        BCLConvertDataSection.get_bclconvert_datarows_from_list(self.valid_bclconvert_data)
+        BCLConvertDataSection(*self.valid_bclconvert_data)
 
-    def test_bclconvert_data_section_with_extra_params(self):
+    def test_bclconvert_data_section_with_settings(self):
         # Get valid data with settings input
-        BCLConvertDataSection.get_bclconvert_datarows_from_list(self.valid_bclconvert_data_with_settings)
+        BCLConvertDataSection(*self.valid_bclconvert_data_with_settings)
 
     def test_bclconvert_data_with_invalid_rows(self):
         # Get data with invalid settings
-        try:
-            BCLConvertDataSection.get_bclconvert_datarows_from_list(self.invalid_bclconvert_data_with_settings)
-            assert False
-        except AttributeError:
-            assert True
+        with pytest.warns(UserWarning):
+            BCLConvertDataSection(*self.invalid_bclconvert_data_with_settings)
