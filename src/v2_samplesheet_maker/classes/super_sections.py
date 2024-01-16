@@ -3,6 +3,7 @@ from copy import deepcopy
 from typing import Dict, Any, Optional, List
 import pandas as pd
 from pydantic import BaseModel
+import warnings
 
 # Relative subpackges
 from ..utils.logger import get_logger
@@ -16,20 +17,6 @@ Here we define the growing list of samplesheet section formats
 """
 
 
-def log_untouched_options(*args, **kwargs):
-    """
-    Show all of the parameters passed that were not used
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    for arg in list(*args):
-        logger.warning(f"Postional argument '{arg}' was not used")
-
-    for kwarg_key, kwarg_value in dict(**kwargs).items():
-        logger.warning(f"Keyword argument '{kwarg_key}={kwarg_value}' was not used")
-
-
 class Section:
     """
     Super Class for each section
@@ -38,22 +25,41 @@ class Section:
     _model: Optional[BaseModel] = None
     _is_cloud: Optional[bool] = False
     _class_header: Optional[str] = None
-    _class_name: Optional[str] = None
 
     def __init__(self, *args, **kwargs):
 
         # Assign both
-        kwargs_list = deepcopy(kwargs)
-
+        kwargs_dict = deepcopy(kwargs)
         for key in self._model.model_fields.keys():
-            if key in kwargs_list.keys():
+            if key in kwargs_dict.keys():
                 setattr(self, key, kwargs.pop(key))
             else:
                 # Set value to None
                 setattr(self, key, None)
 
         # Log any keys that still exist that aren't in the model
-        log_untouched_options(*args, **kwargs)
+        self.log_untouched_options(*args, **kwargs)
+
+    def log_untouched_options(self, *args, **kwargs):
+        """
+        Show all of the parameters passed that were not used
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        for arg in list(args):
+            logger.warning(f"Postional argument '{arg}' was not used for {self._model}")
+            warnings.warn(
+                f"Postional argument '{arg}' was not used for {self._model}",
+                UserWarning
+            )
+
+        for kwarg_key, kwarg_value in dict(**kwargs).items():
+            logger.warning(f"Keyword argument '{kwarg_key}={kwarg_value}' was not used for {self._model}")
+            warnings.warn(
+                f"Keyword argument '{kwarg_key}={kwarg_value}' was not used for {self._model}",
+                UserWarning,
+            )
 
     def _build_section(self) -> Any:
         raise NotImplementedError
@@ -64,6 +70,17 @@ class Section:
         :return:
         """
         raise NotImplementedError
+
+    def print_class_header(self) -> str:
+        """
+        Print out the class header, including [] and "Cloud_" prefix if appropriate
+        :return:
+        """
+        header_str = self._class_header
+        if self._is_cloud:
+            header_str = "Cloud_" + header_str
+
+        return f"[{header_str}]"
 
     def validate_model(self):
         """
@@ -79,7 +96,7 @@ class Section:
         """
         # Write the class header
         file_h.write(
-            f"[{self._class_header}]" + "\n"
+            self.print_class_header() + "\n"
         )
 
         # Write out the section as a string
@@ -94,6 +111,7 @@ class KVSection(Section):
     :return:
     """
     def __init__(self, *args, **kwargs):
+        self._raw_kwargs_dict = deepcopy(kwargs)
         # Set section format
         super().__init__(*args, **kwargs)
         self.section_dict = None
@@ -111,30 +129,24 @@ class KVSection(Section):
         return self.build_section_dict()
 
     def coerce_values(self):
-        # Collect original objects
-        dict_object = {
-            kv[0]: kv[1]
-            for kv in filter(
-                lambda kv_iter: not kv_iter[0] == "section_dict",
-                self.__dict__.items())
-        }
-
         # Coerce with model dump
-        coerced_dict = self._model(**dict_object).model_dump()
+        coerced_dict = self._model(**self.get_dict_object()).model_dump()
 
         for key, value in coerced_dict.items():
             self.__setattr__(key, value)
 
-    def build_section_dict(self):
-        # Collect original objects
-        dict_object = {
+    def get_dict_object(self):
+        return {
             kv[0]: kv[1]
             for kv in filter(
-                lambda kv_iter: not kv_iter[0] == "section_dict",
-                self.__dict__.items())
+                lambda kv_iter: not kv_iter[0] in ["section_dict", "_raw_kwargs_dict"],
+                self.__dict__.items()
+            )
         }
 
-        self.section_dict = self._model(**dict_object).to_dict()
+    def build_section_dict(self):
+        # Collect original objects
+        self.section_dict = self._model(**self.get_dict_object()).to_dict()
         self.section_dict = self.filter_dict(self.section_dict)
 
     def filter_dict(self, initial_dict) -> Dict:
@@ -208,6 +220,7 @@ class DataFrameSection(Section):
         """
         # Assign args to data_rows
         data_rows = args
+        self._raw_args = deepcopy(args)
 
         # Set section format
         super().__init__()
@@ -237,6 +250,11 @@ class DataFrameSection(Section):
         ).dropna(
             how="all", axis="columns"
         )
+
+        try:
+            self.clean_rows()
+        except NotImplementedError:
+            pass
 
         self.order_rows()
 
@@ -272,6 +290,13 @@ class DataFrameSection(Section):
 
         # Order rows by values in order list
         self.section_df = self.section_df.sort_values(by=order_list)
+
+    def clean_rows(self):
+        """
+        A DataFrame section may have a method to clean up rows (i.e drop duplicates)
+        :return:
+        """
+        raise NotImplementedError
 
     def validate_model(self):
         """

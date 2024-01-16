@@ -5,6 +5,8 @@ PyDantic Schemas for each of the classes
 """
 # Imports
 from typing import Optional, List, ClassVar, Dict
+
+import pandas as pd
 from pydantic import BaseModel, ConfigDict
 
 
@@ -47,7 +49,7 @@ class CloudDataSectionRowModel(BaseModel):
         return {
             "Sample_ID": self.sample_id,
             "ProjectName": self.project_name,
-            "libraryName": self.library_name,
+            "LibraryName": self.library_name,
             "LibraryPrepKitName": self.library_prep_kit_name,
             "IndexAdapterKitName": self.index_adapter_kit_name
         }

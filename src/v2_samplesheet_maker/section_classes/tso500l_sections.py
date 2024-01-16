@@ -42,6 +42,10 @@ class TSO500LDataRowSection(DataFrameSectionRow):
     # Set model
     _model = TSO500LDataRowModel
 
+    def get_cloud_data_row(self):
+        # Collect original objects
+        return self._model(**self.get_dict_object()).get_cloud_data_section_row()
+
 
 class TSO500LDataSection(DataFrameSection):
     """
@@ -58,3 +62,12 @@ class TSO500LDataSection(DataFrameSection):
 
 class CloudTSO500LDataSection(TSO500LDataSection):
     _is_cloud = True
+
+    def get_cloud_data_list(self):
+        return list(
+            map(
+                lambda row_iter: self._row_obj(**row_iter).get_cloud_data_row(),
+                self._raw_args
+            )
+        )
+

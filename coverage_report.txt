@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-7.4.4, pluggy-1.3.0
+rootdir: /media/UMCCR/GitHub/v2-bclconvert-samplesheet-maker
+plugins: Faker-17.0.0, cov-4.1.0
+collected 22 items
+
+tests/v2_samplesheet_maker/classes/test_samplesheet.py .
+tests/v2_samplesheet_maker/classes/test_sections.py ................
+tests/v2_samplesheet_maker/utils/test_cli.py .....
+
+---------- coverage: platform linux, python 3.10.12-final-0 ----------
+Name                                                               Stmts   Miss  Cover
+--------------------------------------------------------------------------------------
+src/v2_samplesheet_maker/__init__.py                                   0      0   100%
+src/v2_samplesheet_maker/classes/__init__.py                           0      0   100%
+src/v2_samplesheet_maker/classes/samplesheet.py                       75     20    73%
+src/v2_samplesheet_maker/classes/super_sections.py                   111     23    79%
+src/v2_samplesheet_maker/enums.py                                     10      0   100%
+src/v2_samplesheet_maker/globals.py                                    0      0   100%
+src/v2_samplesheet_maker/models/__init__.py                            0      0   100%
+src/v2_samplesheet_maker/models/bcl_convert_sections.py               52      2    96%
+src/v2_samplesheet_maker/models/cloud_section.py                      28      6    79%
+src/v2_samplesheet_maker/models/run_info_sections.py                  30      1    97%
+src/v2_samplesheet_maker/models/samplesheet.py                        13     13     0%
+src/v2_samplesheet_maker/models/tso500l_sections.py                   30      4    87%
+src/v2_samplesheet_maker/run/__init__.py                               0      0   100%
+src/v2_samplesheet_maker/run/v2_samplesheet_writer.py                 14     14     0%
+src/v2_samplesheet_maker/section_classes/bcl_convert_sections.py      16      2    88%
+src/v2_samplesheet_maker/section_classes/cloud_sections.py            29     13    55%
+src/v2_samplesheet_maker/section_classes/run_info_sections.py         12      0   100%
+src/v2_samplesheet_maker/section_classes/tso500l_sections.py          20      2    90%
+src/v2_samplesheet_maker/utils/__init__.py                             0      0   100%
+src/v2_samplesheet_maker/utils/cli.py                                 33      3    91%
+src/v2_samplesheet_maker/utils/docopt_docs.py                          2      2     0%
+src/v2_samplesheet_maker/utils/logger.py                              37      8    78%
+--------------------------------------------------------------------------------------
+TOTAL                                                                512    113    78%
+
+
+============================== 22 passed in 0.91s ==============================

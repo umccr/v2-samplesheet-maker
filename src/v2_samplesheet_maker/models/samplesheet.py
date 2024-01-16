@@ -28,5 +28,3 @@ class SampleSheetModel(BaseModel):
     # Cloud Sections
     cloud_settings_section: Optional[CloudSettingsSectionModel]
     cloud_data_section: Optional[CloudDataSectionModel]
-
-    #
