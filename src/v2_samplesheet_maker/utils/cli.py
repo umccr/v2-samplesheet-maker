@@ -5,9 +5,11 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Dict
 
-from .logger import set_basic_logger
+from .logger import set_basic_logger, get_logger
 
 set_basic_logger()
+
+logger = get_logger()
 
 
 def check_v2_samplesheet_args(args) -> Dict:
