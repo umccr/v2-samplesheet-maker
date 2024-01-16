@@ -7,8 +7,14 @@ Collect logger through verboselogs package
 import verboselogs
 import logging
 
+logging.captureWarnings(True)
+
 logger = verboselogs.VerboseLogger(__name__)
-logger.addHandler(logging.StreamHandler())
+stream_handler = logging.StreamHandler()
+logger.addHandler(stream_handler)
+
+warnings_logger = logging.getLogger("py.warnings")
+warnings_logger.addHandler(stream_handler)
 
 import inspect
 
