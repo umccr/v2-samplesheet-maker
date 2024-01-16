@@ -38,7 +38,6 @@ class Section:
     _model: Optional[BaseModel] = None
     _is_cloud: Optional[bool] = False
     _class_header: Optional[str] = None
-    _class_name: Optional[str] = None
 
     def __init__(self, *args, **kwargs):
 
@@ -65,6 +64,17 @@ class Section:
         """
         raise NotImplementedError
 
+    def print_class_header(self) -> str:
+        """
+        Print out the class header, including [] and "Cloud_" prefix if appropriate
+        :return:
+        """
+        header_str = self._class_header
+        if self._is_cloud:
+            header_str = "Cloud_" + header_str
+
+        return f"[{header_str}]"
+
     def validate_model(self):
         """
         Validate inputs against pydantic model of class
@@ -79,7 +89,7 @@ class Section:
         """
         # Write the class header
         file_h.write(
-            f"[{self._class_header}]" + "\n"
+            self.print_class_header() + "\n"
         )
 
         # Write out the section as a string
