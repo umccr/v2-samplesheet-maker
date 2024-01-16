@@ -90,9 +90,9 @@ if ! git config --get user.email 1>/dev/null 2>&1; then
 fi
 
 ## Check toml
-if ! python3 -c 'import toml' 1>/dev/null 2>&1; then
-  echo_stderr "Python toml not installed"
-  echo_stderr "You can install toml by running 'pip install .[toml]'"
+if ! python3 -c 'import tomllib; import tomli_w' 1>/dev/null 2>&1; then
+  echo_stderr "Python toml dependencies not installed"
+  echo_stderr "You can install toml_w by running 'pip install .[toml]', tomllib was introduced in python 3.11"
   exit 1
 fi
 
@@ -199,7 +199,8 @@ echo_stderr "Updating pyproject.toml"
 python3 - <<EOF
 
 # Imports
-import toml
+import tomllib
+import tomli_w
 from pathlib import Path
 
 # Load external variables
@@ -207,15 +208,15 @@ pyproject_toml_path = Path("${PYPROJECT_TOML_PATH}").absolute().resolve()
 version_number = "${tag}".lstrip("v")
 
 # Open toml file
-with open(pyproject_toml_path, mode="r") as toml_h:
-    config = toml.load(toml_h)
+with open(pyproject_toml_path, mode="rb") as toml_h:
+    config = tomllib.load(toml_h)
 
 # Edit toml file
 config["project"]["version"] = version_number
 
 # Write out toml file
-with open(pyproject_toml_path, mode="w") as toml_h:
-    toml.dump(config, toml_h)
+with open(pyproject_toml_path, mode="wb") as toml_h:
+    tomli_w.dump(config, toml_h)
 EOF
 
 ## Commit edit toml - use GitHub Actions bot for commit author
