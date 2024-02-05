@@ -28,13 +28,13 @@ jobs:
 
       # Check pre release regex match
       - id: tag_regex_match_dev
-        uses: kaisugi/action-regex-match@v1.0.0
+        uses: kaisugi/action-regex-match@v1.0.1
         with:
           text: ${{ steps.get_tag.outputs.tag }}
           regex: '^v[0-9]+\.[0-9]+\.[0-9]+(\.dev[0-9]+)?$'
       # Check pre release regex match
       - id: tag_regex_match_prod
-        uses: kaisugi/action-regex-match@v1.0.0
+        uses: kaisugi/action-regex-match@v1.0.1
         with:
           text: ${{ steps.get_tag.outputs.tag }}
           regex: '^v[0-9]+\.[0-9]+\.[0-9]+(\.post[0-9]+)?$'
@@ -169,13 +169,13 @@ jobs:
       - id: git_checkout
         uses: actions/checkout@v4
       - id: setup_python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - id: run_make_test
         run: |
           make test
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: coverage_report
           path: coverage_report.txt

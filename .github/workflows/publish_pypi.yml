@@ -39,13 +39,13 @@ jobs:
       - uses: actions/checkout@v4
 
       # Setup python
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
       # Download wheels from artifacts dir
       - name: Download Wheels
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.dist_artifacts_name }}
           path: ${{ inputs.dist_artifacts_path }}
