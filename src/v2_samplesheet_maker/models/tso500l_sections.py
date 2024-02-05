@@ -6,12 +6,20 @@ PyDantic Schemas for each of the classes
 from typing import Optional, List, ClassVar
 from pydantic import BaseModel, ConfigDict
 
-from ..enums import TSO500LSampleType
+from ..enums import TSO500LSampleType, AdapterBehaviour
 
 
 class TSO500LSettingsSectionModel(BaseModel):
+    # BCLConvert Settings for within TSO500L
+    adapter_read_1: Optional[str]
+    adapter_read_2: Optional[str]
+    adapter_behaviour: Optional[AdapterBehaviour]
+    minimum_trimmed_read_length: Optional[int]
+    mask_short_reads: Optional[int]
+    override_cycles: Optional[str]
+
     # Settings
-    starts_from_fastq: bool
+    starts_from_fastq: Optional[bool]
 
     # Cloud values
     software_version: Optional[str]
@@ -21,18 +29,29 @@ class TSO500LSettingsSectionModel(BaseModel):
 
     def to_dict(self):
         return {
+            "AdapterRead1": self.adapter_read_1,
+            "AdapterRead2": self.adapter_read_2,
+            "AdapterBehaviour": self.adapter_behaviour.value if self.adapter_behaviour is not None else None,
+            "MinimumTrimmedReadLength": self.minimum_trimmed_read_length,
+            "MaskShortReads": self.mask_short_reads,
+            "OverrideCycles": self.override_cycles,
             "SoftwareVersion": self.software_version,
             "StartsFromFastq": self.starts_from_fastq
         }
 
 
 class TSO500LDataRowModel(BaseModel):
+    # From https://support-docs.illumina.com/SW/DRAGEN_TSO500_ctDNA_v2.1/Content/SW/Informatics/APP/InputReqs_appT500ctDNAlocal.htm
     sample_id: str
-    index_id: str
+    index_id: Optional[str]  # Use when using [Cloud_TSO500L_Data]
     sample_type: TSO500LSampleType
     sample_description: Optional[str]
-    index: Optional[str]
-    index2: Optional[str]
+    lane: Optional[int]
+    index: str
+    index2: str
+    i7_index_id: Optional[str]  # Use when using [TSO500L_Data]
+    i5_index_id: Optional[str]  # Use when using [TSO500L_Data]
+
 
     # Cloud Data
     # If URN is specified in TSO500L_Settings
@@ -50,8 +69,11 @@ class TSO500LDataRowModel(BaseModel):
             "Index_ID": self.index_id,
             "Sample_Type": self.sample_type.value if self.sample_type is not None else None,
             "Sample_Description": self.sample_description,
+            "Lane": self.lane,
             "Index": self.index,
-            "Index2": self.index2
+            "Index2": self.index2,
+            "I7_Index_ID": self.i7_index_id,
+            "I5_Index_ID": self.i5_index_id
         }
 
     def get_cloud_data_section_row(self):
