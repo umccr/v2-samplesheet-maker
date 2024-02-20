@@ -1,0 +1,220 @@
+{
+  "header": {
+    "file_format_version": 2,
+    "run_name": "TruSeq-PCRfree-NA12878-10B",
+    "instrument_type": "NovaSeqXPlus",
+    "index_orientation": "Forward"
+  },
+  "reads": {
+    "read_1_cycles": 151,
+    "read_2_cycles": 151,
+    "index_1_cycles": 10,
+    "index_2_cycles": 10
+  },
+  "bclconvert_settings": {
+    "software_version": "4.1.27",
+    "adapter_read_1": "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA",
+    "adapter_read_2": "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT",
+    "override_cycles": "Y151;I8N2;N2I8;Y151",
+    "fastq_compression_format": "gzip",
+    "urn": "urn:ilmn:ica:pipeline:bf93b5cf-cb27-4dfa-846e-acd6eb081aca#BclConvert_v4_2_7"
+  },
+  "bclconvert_data": [
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep1",
+      "index": "CCGCGGTT",
+      "index2": "AGCGCTAG",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep1",
+      "index": "TTATAACC",
+      "index2": "GATATCGA",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep1",
+      "index": "GGACTTGG",
+      "index2": "CGCAGACG",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep1",
+      "index": "AAGTCCAA",
+      "index2": "TATGAGTA",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep1",
+      "index": "ATCCACTG",
+      "index2": "AGGTGCGT",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep1",
+      "index": "GCTTGTCA",
+      "index2": "GAACATAC",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep1",
+      "index": "CAAGCTAG",
+      "index2": "ACATAGCG",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep1",
+      "index": "TGGATCGA",
+      "index2": "GTGCGATA",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep2",
+      "index": "AGTTCAGG",
+      "index2": "CCAACAGA",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep2",
+      "index": "GACCTGAA",
+      "index2": "TTGGTGAG",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep2",
+      "index": "TCTCTACT",
+      "index2": "CGCGGTTC",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep2",
+      "index": "CTCTCGTC",
+      "index2": "TATAACCT",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep2",
+      "index": "CCAAGTCT",
+      "index2": "AAGGATGA",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep2",
+      "index": "TTGGACTC",
+      "index2": "GGAAGCAG",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep2",
+      "index": "GGCTTAAG",
+      "index2": "TCGTGACC",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep2",
+      "index": "AATCCGGA",
+      "index2": "CTACAGTT",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep3",
+      "index": "TAATACAG",
+      "index2": "ATATTCAC",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep3",
+      "index": "CGGCGTGA",
+      "index2": "GCGCCTGT",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep3",
+      "index": "ATGTAAGT",
+      "index2": "ACTCTATG",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep3",
+      "index": "GCACGGAC",
+      "index2": "GTCTCGCA",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep3",
+      "index": "GGTACCTT",
+      "index2": "AAGACGTC",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep3",
+      "index": "AACGTTCC",
+      "index2": "GGAGTACT",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep3",
+      "index": "GCAGAATT",
+      "index2": "ACCGGCCA",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    },
+    {
+      "lane": 1,
+      "sample_id": "TSPF-NA12878-10B-Rep3",
+      "index": "ATGAGGCC",
+      "index2": "GTTAATTG",
+      "library_prep_kit_name": "TruSeqDNAPCRFree",
+      "index_adapter_kit_name": "TruSeqDnaUDIndexes96Indexes"
+    }
+  ],
+  "cloud_settings": {
+    "generated_version": "0.0.0",
+    "cloud_workflow": "ica_workflow_1"
+  }
+}

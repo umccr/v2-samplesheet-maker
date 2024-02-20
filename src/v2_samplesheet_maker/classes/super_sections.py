@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 from copy import deepcopy
 from typing import Dict, Any, Optional, List
 import pandas as pd
@@ -31,7 +32,13 @@ class Section:
         # Assign both
         kwargs_dict = deepcopy(kwargs)
         for key in self._model.model_fields.keys():
-            if key in kwargs_dict.keys():
+            if hasattr(self, key):
+                # Don't set key if it already exists
+                # This occurs in the rare case of analysis_urns which are set in the subclass
+                # Pop out key so not logged in untouched options
+                _ = kwargs.pop(key, None)
+                continue
+            elif key in kwargs_dict.keys():
                 setattr(self, key, kwargs.pop(key))
             else:
                 # Set value to None
@@ -71,6 +78,14 @@ class Section:
         """
         raise NotImplementedError
 
+    def to_json(self) -> str:
+        """
+        Write out the section as a json object
+        Implemented in subclass
+        :return:
+        """
+        raise NotImplementedError
+
     def print_class_header(self) -> str:
         """
         Print out the class header, including [] and "Cloud_" prefix if appropriate
@@ -81,6 +96,18 @@ class Section:
             header_str = "Cloud_" + header_str
 
         return f"[{header_str}]"
+
+    def print_class_header_json(self) -> str:
+        """
+        Print out the class header, with "Cloud_" prefix if appropriate
+        Do not print out the [] as this is not required for json
+        :return:
+        """
+        header_str = self._class_header.lower()
+        if self._is_cloud:
+            header_str = "cloud_" + header_str
+
+        return header_str
 
     def validate_model(self):
         """
@@ -103,6 +130,14 @@ class Section:
         file_h.write(
             self.to_string() + ("\n" if add_new_line_after_section is True else "")
         )
+
+    def write_section_json(self, file_h):
+        """
+        Write the section out as a json object
+        :param file_h:
+        :return:
+        """
+        file_h.write(self.to_json())
 
 
 class KVSection(Section):
@@ -173,6 +208,10 @@ class KVSection(Section):
             )
         ) + "\n"
 
+    def to_json(self) -> str:
+        # Write out each key value pair with a comma between key and value (and a new line between each pair)
+        return json.dumps({self.print_class_header_json(): self.filter_dict(self._model(**self.get_dict_object()).to_json())})
+
 
 class DataFrameSectionRow(KVSection):
     """
@@ -194,6 +233,10 @@ class DataFrameSectionRow(KVSection):
     def to_string(self):
         # Cannot use to-string for SectionRow
         raise NotImplementedError
+
+    def to_json(self) -> str:
+        # Needed for dataframe object
+        return json.dumps(self.filter_dict(self._model(**self.get_dict_object()).to_json()))
 
 
 class CloudKVSection(KVSection):
@@ -305,6 +348,19 @@ class DataFrameSection(Section):
         """
         # Implemented in subclass
         raise NotImplementedError
+
+    def to_json(self) -> str:
+        # Write out the dataframe as a dataframe section
+        return json.dumps(
+            {
+                self.print_class_header_json(): list(
+                    map(
+                        lambda data_row_iter: json.loads(data_row_iter.to_json()),
+                        self.data_rows
+                    )
+                )
+            }
+        )
 
 
 class CloudDataFrameSection(DataFrameSection):
