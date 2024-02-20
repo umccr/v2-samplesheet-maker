@@ -152,6 +152,147 @@ docker container bclconvert against your samplesheet.
 
 You will need both jq and docker installed for this to work.
 
+## Additional Usage
+
+### Parsing a SampleSheet CSV to JSON
+
+We also have created a parser between the csv and json, with the following usage syntax
+
+**Input SampleSheet CSV**
+
+<details>
+
+<summary>Click to expand! </summary>
+
+```ini
+[Header]
+FileFormatVersion,2
+RunName,my-illumina-sequencing-run
+RunDescription,A test run
+InstrumentPlatform,NovaSeq 6000
+InstrumentType,NovaSeq
+
+[Reads]
+Read1Cycles,151
+Read2Cycles,151
+Index1Cycles,10
+Index2Cycles,10
+
+[BCLConvert_Settings]
+AdapterBehavior,trim
+BarcodeMismatchesIndex1,1
+BarcodeMismatchesIndex2,1
+MinimumAdapterOverlap,2
+OverrideCycles,Y151;Y10;Y8N2;Y151
+CreateFastqForIndexReads,False
+NoLaneSplitting,False
+FastqCompressionFormat,gzip
+
+[BCLConvert_Data]
+Lane,Sample_ID,index,index2,Sample_Project
+1,MyFirstSample,AAAAAAAAAA,CCCCCCCC,SampleProject
+1,MySecondSample,GGGGGGGGGG,TTTTTTTT,SampleProject
+```
+
+</details>
+
+```bash
+# Initialise new index variable
+NEW_I7_INDEX="TTTTTTTTTT"
+SAMPLE_ID="MySecondSample"
+
+# Convert the SampleSheet to JSON
+# Update the index for the sample "MySecondSample" in the bclconvert_data section
+# Write out the new samplesheet to csv
+v2-samplesheet-to-json SampleSheet.csv - | \
+jq --raw-output \
+  --arg sample_id "${SAMPLE_ID}" \
+  --arg replacement_index "${NEW_I7_INDEX}" \
+  '
+    .bclconvert_data=( 
+      .bclconvert_data |
+      map(
+        if .sample_id == $sample_id then
+          .index = $replacement_index
+        else
+          .
+        end
+      )
+    )
+  ' | \
+v2-samplesheet-maker - SampleSheet.updated_index.csv 
+```
+
+Gives us the following samplesheet as an output
+
+<details>
+
+```
+[Header]
+FileFormatVersion,2
+RunName,my-illumina-sequencing-run
+RunDescription,A test run
+InstrumentPlatform,NovaSeq 6000
+InstrumentType,NovaSeq
+
+[Reads]
+Read1Cycles,151
+Read2Cycles,151
+Index1Cycles,10
+Index2Cycles,10
+
+[BCLConvert_Settings]
+AdapterBehavior,trim
+BarcodeMismatchesIndex1,1
+BarcodeMismatchesIndex2,1
+MinimumAdapterOverlap,2
+OverrideCycles,Y151;Y10;Y8N2;Y151
+CreateFastqForIndexReads,False
+NoLaneSplitting,False
+FastqCompressionFormat,gzip
+
+[BCLConvert_Data]
+Lane,Sample_ID,index,index2,Sample_Project
+1,MyFirstSample,AAAAAAAAAA,CCCCCCCC,SampleProject
+1,MySecondSample,TTTTTTTTTT,TTTTTTTT,SampleProject
+```
+
+</details>
+
+If we run a diff on our original and updated samplesheet, we can see that the index for "MySecondSample" has been updated. 
+
+```bash
+diff SampleSheet.csv SampleSheet.updated_index.csv
+```
+
+Yields
+
+```
+27c27
+< 1,MySecondSample,GGGGGGGGGG,TTTTTTTT,SampleProject
+---
+> 1,MySecondSample,TTTTTTTTTT,TTTTTTTT,SampleProject
+```
+
+
+### Manipulating a samplesheet by parsing through JSON
+
+For this component, you will need some basic knowledge of the [jq][jq_url] command line tool. 
+
+In this example we are given a standard samplesheet but want to edit the adapters for one of the samples.  
+
+Whilst we could do this with grep, sed or awk, it's a little hacky, instead we can
+1. Parse the samplesheet to json to stdout
+2. Use jq to update the samplesheet 
+3. Write out the updated samplesheet to csv
+
+
+```bash
+v2-samplesheet-to-json 
+
+```
+
+
 ## Contributing
 
 Is there a missing section you'd like to see?
@@ -179,3 +320,4 @@ We try and update this repository for every new Dragen Release (which coincides 
 [section_class_file]: src/v2_samplesheet_maker/section_classes/sheet_sections.py
 [samplesheet_class_file]: src/v2_samplesheet_maker/classes/samplesheet.py
 [test_sections_file]: tests/v2_samplesheet_maker/classes/test_sections.py
+[jq_url]: https://stedolan.github.io/jq/

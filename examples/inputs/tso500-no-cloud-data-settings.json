@@ -1,0 +1,98 @@
+{
+  "header": {
+    "file_format_version": 2,
+    "run_name": "SeraSeq_Demo_Run_1",
+    "instrument_platform": "NovaSeq 6000",
+    "instrument_type": "NovaSeq",
+    "index_orientation": "Forward"
+  },
+  "reads": {
+    "read_1_cycles": 151,
+    "read_2_cycles": 151,
+    "index_1_cycles": 10,
+    "index_2_cycles": 10
+  },
+  "sequencing": {
+    "library_prep_kits": [
+      "TSO500ctDNA_v2"
+    ]
+  },
+  "bclconvert_settings": {
+    "software_version": "2.1.1",
+    "adapter_read_1": "CTGTCTCTTATACACATCT",
+    "adapter_read_2": "CTGTCTCTTATACACATCT",
+    "override_cycles": "Y151;I10;I8N2;Y151",
+    "mask_short_reads": 35,
+    "adapter_behavior": "trim",
+    "minimum_trimmed_read_length": 35
+  },
+  "bclconvert_data": [
+    {
+      "sample_id": "SeraSeq-MutMixv2-0710-0143_rep1",
+      "index": "TGATTATACG",
+      "index2": "TGTAATCGAC"
+    },
+    {
+      "sample_id": "SeraSeq-MutMixv2-0710-0141_rep1",
+      "index": "GGTAACTCGC",
+      "index2": "TCACCAACTT"
+    },
+    {
+      "sample_id": "SeraSeq-MutMixv2-0710-0143_rep2",
+      "index": "ACTCGGCAAT",
+      "index2": "TTCAGTTGTC"
+    },
+    {
+      "sample_id": "SeraSeq-MutMixv2-0710-0141_rep2",
+      "index": "CCATCTCGCC",
+      "index2": "AACCATAGAA"
+    }
+  ],
+  "cloud_tso500l_settings": {
+    "software_version": "2.1.1",
+    "starts_from_fastq": false,
+    "urn": "urn:ilmn:ica:pipeline:fdef5902-3f50-4ee7-ae17-15d38d4b489c#DRAGEN_TSO500_ctDNA_RUO_v2-1-1_3_8_2023_Official_Analysis_Software_Pipeline"
+  },
+  "cloud_tso500l_data": [
+    {
+      "sample_id": "SeraSeq-MutMixv2-0710-0143_rep1",
+      "sample_type": "DNA",
+      "index_id": "UDP0033",
+      "index": "TGATTATACG",
+      "index2": "TGTAATCGAC",
+      "library_prep_kit_name": "TSO500ctDNA_v2",
+      "index_adapter_kit_name": "TSO500ctDNA_SetAB"
+    },
+    {
+      "sample_id": "SeraSeq-MutMixv2-0710-0141_rep1",
+      "sample_type": "DNA",
+      "index_id": "UDP0035",
+      "index": "GGTAACTCGC",
+      "index2": "TCACCAACTT",
+      "library_prep_kit_name": "TSO500ctDNA_v2",
+      "index_adapter_kit_name": "TSO500ctDNA_SetAB"
+    },
+    {
+      "sample_id": "SeraSeq-MutMixv2-0710-0143_rep2",
+      "sample_type": "DNA",
+      "index_id": "UDP0041",
+      "index": "ACTCGGCAAT",
+      "index2": "TTCAGTTGTC",
+      "library_prep_kit_name": "TSO500ctDNA_v2",
+      "index_adapter_kit_name": "TSO500ctDNA_SetAB"
+    },
+    {
+      "sample_id": "SeraSeq-MutMixv2-0710-0141_rep2",
+      "sample_type": "DNA",
+      "index_id": "UDP0043",
+      "index": "CCATCTCGCC",
+      "index2": "AACCATAGAA",
+      "library_prep_kit_name": "TSO500ctDNA_v2",
+      "index_adapter_kit_name": "TSO500ctDNA_SetAB"
+    }
+  ],
+  "cloud_settings": {
+    "generated_version": "0.0.0",
+    "cloud_workflow": "ica_workflow_1"
+  }
+}

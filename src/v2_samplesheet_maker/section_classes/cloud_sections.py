@@ -8,6 +8,7 @@ from copy import deepcopy
 import pandas as pd
 
 # Relative modules
+from ..utils import snake_case_to_upper_snake_case
 from ..classes.super_sections import KVSection, DataFrameSection, DataFrameSectionRow
 from ..models.cloud_section import (
     CloudSettingsSectionModel,
@@ -37,8 +38,10 @@ class CloudSettingsSection(KVSection):
             # Update set
             self.analysis_urns.update(
                 # Pop urn from key at the same time
+                # Convert snake_case to upper snake case
+                # Since we don't touch these again in the to_dict or to_json methods
                 {
-                    kwarg_key: kwargs.pop(kwarg_key)
+                    snake_case_to_upper_snake_case(kwarg_key): kwargs.pop(kwarg_key)
                 }
             )
 

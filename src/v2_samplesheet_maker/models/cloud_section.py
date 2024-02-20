@@ -5,9 +5,10 @@ PyDantic Schemas for each of the classes
 """
 # Imports
 from typing import Optional, List, ClassVar, Dict
-
-import pandas as pd
 from pydantic import BaseModel, ConfigDict
+
+# Local imports
+from ..utils import pascal_case_to_snake_case
 
 
 class CloudSettingsSectionModel(BaseModel):
@@ -32,6 +33,25 @@ class CloudSettingsSectionModel(BaseModel):
 
         return initial_dict
 
+    def to_json(self):
+        # Initialise dictionary
+        initial_dict = {
+            "generated_version": self.generated_version,
+            "cloud_workflow": self.cloud_workflow,
+        }
+        if self.analysis_urns is None:
+            return initial_dict
+        initial_dict.update(
+            dict(
+                map(
+                    # Convert back to snake case
+                    lambda analysis_urn_iter: (pascal_case_to_snake_case(analysis_urn_iter[0]), analysis_urn_iter[1]),
+                    self.analysis_urns.items()
+                )
+            )
+        )
+        return initial_dict
+
 
 class CloudDataSectionRowModel(BaseModel):
     """
@@ -52,6 +72,15 @@ class CloudDataSectionRowModel(BaseModel):
             "LibraryName": self.library_name,
             "LibraryPrepKitName": self.library_prep_kit_name,
             "IndexAdapterKitName": self.index_adapter_kit_name
+        }
+
+    def to_json(self):
+        return {
+            "sample_id": self.sample_id,
+            "project_name": self.project_name,
+            "library_name": self.library_name,
+            "library_prep_kit_name": self.library_prep_kit_name,
+            "index_adapter_kit_name": self.index_adapter_kit_name
         }
 
 

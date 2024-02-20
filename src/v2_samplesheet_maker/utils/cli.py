@@ -12,7 +12,7 @@ set_basic_logger()
 logger = get_logger()
 
 
-def check_v2_samplesheet_args(args) -> Dict:
+def check_v2_samplesheet_writer_args(args) -> Dict:
     """
     Check the v2 samplesheet args are legit
     :param args: A dictionary with the following keys:
@@ -20,7 +20,7 @@ def check_v2_samplesheet_args(args) -> Dict:
       * <output-csv> (Path to an output csv)
     :return: A dictionary with the following keys
       * input-json ( A dictionary containing the samplesheet information)
-      * output-csv (Path to an output csv or a file-handle if '-' is specified)  # TODO
+      * output-csv (Path to an output csv or a file-handle if '-' is specified)
     """
     # Always clone before editing
     args = deepcopy(args)
@@ -63,7 +63,49 @@ def check_v2_samplesheet_args(args) -> Dict:
     return args
 
 
+def check_v2_samplesheet_reader_args(args) -> Dict:
+    """
+    Check the v2 samplesheet reader args are legit
+    :param args: A dictionary with the following keys:
+      * <input-csv> (Path to an input csv)
+      * <output-json> (Either '-' for /dev/stdout or a file)
+    :return: A dictionary with the following keys
+      * input-csv ( A v2 samplesheet)
+      * output-json (Path to an output json file or a file-handle if '-' is specified)
+    """
+    # Always clone before editing
+    args = deepcopy(args)
 
+    # Check input json
+    input_csv_arg = args.get("<input-csv>")
+
+    if input_csv_arg == "-":
+        input_csv = sys.stdin.fileno()
+    # Check input_csv file exists
+    elif not Path(input_csv_arg).is_file():
+        logger.error(f"Could not read {input_csv_arg}")
+        raise FileNotFoundError
+    else:
+        input_csv = Path(input_csv_arg)
+
+    # Assign args
+    args["input-csv"] = input_csv
+
+    # Check output csv
+    output_json_arg = args.get("<output-json>")
+
+    if output_json_arg == "-":
+        output_json = sys.stdout.fileno()
+    elif not Path(output_json_arg).parent.is_dir():
+        logger.error(f"Could not find parent directory '{Path(output_json_arg).parent}'"
+                     f"for '{output_json_arg}', cannot create file. Please create parent and try again")
+        raise NotADirectoryError
+    else:
+        output_json = Path(output_json_arg)
+
+    args["output-json"] = output_json
+
+    return args
 
 
 

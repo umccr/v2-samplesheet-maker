@@ -57,6 +57,27 @@ class BCLConvertSettingsSectionModel(BaseModel):
             "SoftwareVersion": self.software_version
         }
 
+    def to_json(self):
+        return {
+            "adapter_behavior": self.adapter_behavior.value if self.adapter_behavior is not None else None,
+            "adapter_read_1": self.adapter_read_1,
+            "adapter_read_2": self.adapter_read_2,
+            "adapter_stringency": self.adapter_stringency,
+            "barcode_mismatches_index_1": self.barcode_mismatches_index_1,
+            "barcode_mismatches_index_2": self.barcode_mismatches_index_2,
+            "minimum_trimmed_read_length": self.minimum_trimmed_read_length,
+            "minimum_adapter_overlap": self.minimum_adapter_overlap,
+            "mask_short_reads": self.mask_short_reads,
+            "override_cycles": self.override_cycles,
+            "trim_umi": self.trim_umi,
+            "create_fastq_for_index_reads": self.create_fastq_for_index_reads,
+            "no_lane_splitting": self.no_lane_splitting,
+            "fastq_compression_format": self.fastq_compression_format.value if self.fastq_compression_format is not None else None,
+            "find_adapters_with_indels": self.find_adapters_with_indels,
+            "independent_index_collision_check": self.independent_index_collision_check,
+            "software_version": self.software_version
+        }
+
 
 class BCLConvertDataRowModel(BaseModel):
     sample_id: str
@@ -67,8 +88,8 @@ class BCLConvertDataRowModel(BaseModel):
     sample_name: Optional[str]
     # Per Sample Settings
     override_cycles: Optional[str]
-    barcode_mismatches_index1: Optional[int]
-    barcode_mismatches_index2: Optional[int]
+    barcode_mismatches_index_1: Optional[int]
+    barcode_mismatches_index_2: Optional[int]
     adapter_read_1: Optional[str]
     adapter_read_2: Optional[str]
     adapter_behavior: Optional[AdapterBehaviour]
@@ -95,12 +116,29 @@ class BCLConvertDataRowModel(BaseModel):
             "Sample_Name": self.sample_name,
             # Per sample settings
             "OverrideCycles": self.override_cycles,
-            "BarcodeMismatchesIndex1": self.barcode_mismatches_index1,
-            "BarcodeMismatchesIndex2": self.barcode_mismatches_index2,
+            "BarcodeMismatchesIndex1": self.barcode_mismatches_index_1,
+            "BarcodeMismatchesIndex2": self.barcode_mismatches_index_2,
             "AdapterRead1": self.adapter_read_1,
             "AdapterRead2": self.adapter_read_2,
             "AdapterBehavior": self.adapter_behavior.value if self.adapter_behavior is not None else None,
             "AdapterStringency": self.adapter_stringency
+        }
+
+    def to_json(self):
+        return {
+            # Sample Options
+            "lane": self.lane,
+            "sample_id": self.sample_id,
+            "index": self.index,
+            "index2": self.index2,
+            "sample_project": self.sample_project,
+            "sample_name": self.sample_name,
+            # Per sample settings
+            "override_cycles": self.override_cycles,
+            "barcode_mismatches_index_1": self.barcode_mismatches_index_1,
+            "barcode_mismatches_index_2": self.barcode_mismatches_index_2,
+            "adapter_read_1": self.adapter_read_1,
+            "adapter_read_2": self.adapter_read_2
         }
 
     def get_cloud_data_section_row(self):

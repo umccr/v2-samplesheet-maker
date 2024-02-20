@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+from pathlib import Path
 
 from v2_samplesheet_maker.classes.samplesheet import SampleSheet
 
@@ -63,3 +64,19 @@ class TestSampleSheetSection:
 
     def test_valid_samplesheet(self):
         SampleSheet(self.valid_samplesheet)
+
+
+class TestSampleSheetReader:
+    def test_read_samplesheet(self):
+        samplesheet_obj = SampleSheet.read_from_samplesheet_csv(
+            Path("examples/csv_outputs/standard-sheet-with-settings.csv")
+        )
+
+    def test_read_samplesheet_and_write_to_json(self):
+        samplesheet_obj = SampleSheet.read_from_samplesheet_csv(
+            Path("examples/csv_outputs/standard-sheet-with-settings.csv")
+        )
+
+        samplesheet_obj.to_json(
+            Path("examples/csv_to_json_outputs/standard-sheet-with-settings.json")
+        )

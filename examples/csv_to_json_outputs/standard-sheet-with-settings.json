@@ -1,0 +1,39 @@
+{
+  "header": {
+    "file_format_version": 2,
+    "run_name": "my-illumina-sequencing-run",
+    "run_description": "A test run",
+    "instrument_platform": "NovaSeq 6000",
+    "instrument_type": "NovaSeq"
+  },
+  "reads": {
+    "read_1_cycles": 151,
+    "read_2_cycles": 151,
+    "index_1_cycles": 10,
+    "index_2_cycles": 10
+  },
+  "bclconvert_settings": {
+    "barcode_mismatches_index_1": 1,
+    "barcode_mismatches_index_2": 1,
+    "override_cycles": "Y151;I10;I8N2;Y151",
+    "create_fastq_for_index_reads": false,
+    "no_lane_splitting": false,
+    "fastq_compression_format": "gzip"
+  },
+  "bclconvert_data": [
+    {
+      "lane": 1,
+      "sample_id": "MyFirstSample",
+      "index": "AAAAAAAAAA",
+      "index2": "CCCCCCCC",
+      "sample_project": "SampleProject"
+    },
+    {
+      "lane": 1,
+      "sample_id": "MySecondSample",
+      "index": "GGGGGGGGGG",
+      "index2": "TTTTTTTT",
+      "sample_project": "SampleProject"
+    }
+  ]
+}
