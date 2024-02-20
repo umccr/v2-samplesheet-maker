@@ -1,0 +1,30 @@
+[Header]
+FileFormatVersion,2
+RunName,my-illumina-sequencing-run
+RunDescription,A test run
+InstrumentPlatform,NovaSeq 6000
+InstrumentType,NovaSeq
+
+[Reads]
+Read1Cycles,151
+Read2Cycles,151
+Index1Cycles,10
+Index2Cycles,10
+
+[BCLConvert_Settings]
+BarcodeMismatchesIndex1,1
+BarcodeMismatchesIndex2,1
+OverrideCycles,Y151;I10;I8N2;Y151
+CreateFastqForIndexReads,False
+NoLaneSplitting,False
+FastqCompressionFormat,gzip
+
+[BCLConvert_Data]
+Lane,Sample_ID,index,index2,Sample_Project
+1,MyFirstSample,AAAAAAAAAA,CCCCCCCC,SampleProject
+1,MySecondSample,GGGGGGGGGG,TTTTTTTT,SampleProject
+
+[Cloud_Data]
+Sample_ID,LibraryName
+MyFirstSample,MyFirstSample_AAAAAAAAAA_CCCCCCCC
+MySecondSample,MySecondSample_GGGGGGGGGG_TTTTTTTT

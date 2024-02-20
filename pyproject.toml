@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "v2_samplesheet_maker"
-version = "4.2.4.post20240116152716"
+version = "4.2.4.post20240205170611"
 description = "v2 SampleSheet maker"
 readme = "Readme.md"
 requires-python = ">=3.10"
@@ -31,6 +31,7 @@ Homepage = "https://github.com/umccr/v2-samplesheet-maker"
 
 [project.scripts]
 v2-samplesheet-maker = "v2_samplesheet_maker.run.v2_samplesheet_writer:main"
+v2-samplesheet-to-json = "v2_samplesheet_maker.run.v2_samplesheet_reader:main"
 
 [project.optional-dependencies]
 test = [

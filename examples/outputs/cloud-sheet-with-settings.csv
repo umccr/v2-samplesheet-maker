@@ -18,8 +18,20 @@ OverrideCycles,Y151;I10;I8N2;Y151
 CreateFastqForIndexReads,False
 NoLaneSplitting,False
 FastqCompressionFormat,gzip
+SoftwareVersion,4.2.7
 
 [BCLConvert_Data]
 Lane,Sample_ID,index,index2,Sample_Project
 1,MyFirstSample,AAAAAAAAAA,CCCCCCCC,SampleProject
 1,MySecondSample,GGGGGGGGGG,TTTTTTTT,SampleProject
+2,MyFirstSample,AAAAAAAAAA,CCCCCCCC,SampleProject
+
+[Cloud_Settings]
+GeneratedVersion,0.0.0
+Cloud_Workflow,ica_workflow_1
+BCLConvert_Pipeline,urn:ilmn:ica:pipeline:bf93b5cf-cb27-4dfa-846e-acd6eb081aca#BclConvert_v4_2_7
+
+[Cloud_Data]
+Sample_ID,LibraryName,LibraryPrepKitName,IndexAdapterKitName
+MyFirstSample,MyFirstSample_AAAAAAAAAA_CCCCCCCC,TruSeqDNAPCRFree,TruSeqDnaUDIndexes96Indexes
+MySecondSample,MySecondSample_GGGGGGGGGG_TTTTTTTT,,

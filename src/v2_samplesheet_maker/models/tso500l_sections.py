@@ -39,6 +39,18 @@ class TSO500LSettingsSectionModel(BaseModel):
             "StartsFromFastq": self.starts_from_fastq
         }
 
+    def to_json(self):
+        return {
+            "adapter_read_1": self.adapter_read_1,
+            "adapter_read_2": self.adapter_read_2,
+            "adapter_behaviour": self.adapter_behaviour.value if self.adapter_behaviour is not None else None,
+            "minimum_trimmed_read_length": self.minimum_trimmed_read_length,
+            "mask_short_reads": self.mask_short_reads,
+            "override_cycles": self.override_cycles,
+            "software_version": self.software_version,
+            "starts_from_fastq": self.starts_from_fastq
+        }
+
 
 class TSO500LDataRowModel(BaseModel):
     # From https://support-docs.illumina.com/SW/DRAGEN_TSO500_ctDNA_v2.1/Content/SW/Informatics/APP/InputReqs_appT500ctDNAlocal.htm
@@ -51,7 +63,6 @@ class TSO500LDataRowModel(BaseModel):
     index2: str
     i7_index_id: Optional[str]  # Use when using [TSO500L_Data]
     i5_index_id: Optional[str]  # Use when using [TSO500L_Data]
-
 
     # Cloud Data
     # If URN is specified in TSO500L_Settings
@@ -74,6 +85,19 @@ class TSO500LDataRowModel(BaseModel):
             "Index2": self.index2,
             "I7_Index_ID": self.i7_index_id,
             "I5_Index_ID": self.i5_index_id
+        }
+
+    def to_json(self):
+        return {
+            "sample_id": self.sample_id,
+            "index_id": self.index_id,
+            "sample_type": self.sample_type.value if self.sample_type is not None else None,
+            "sample_description": self.sample_description,
+            "lane": self.lane,
+            "index": self.index,
+            "index2": self.index2,
+            "i7_index_id": self.i7_index_id,
+            "i5_index_id": self.i5_index_id
         }
 
     def get_cloud_data_section_row(self):

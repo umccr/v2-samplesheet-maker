@@ -5,7 +5,7 @@ import sys
 # For __main__ must use absolute imports
 # https://docs.python.org/3/tutorial/modules.html#intra-package-references
 from v2_samplesheet_maker.classes.samplesheet import SampleSheet
-from v2_samplesheet_maker.utils.cli import check_v2_samplesheet_args
+from v2_samplesheet_maker.utils.cli import check_v2_samplesheet_writer_args
 from v2_samplesheet_maker.utils.docopt_docs import get_v2_samplesheet_writer_doc_opt
 
 
@@ -19,7 +19,7 @@ def run_v2_samplesheet():
     args = docopt(get_v2_samplesheet_writer_doc_opt())
 
     # Check args
-    args = check_v2_samplesheet_args(args)
+    args = check_v2_samplesheet_writer_args(args)
 
     # Read in samplesheet and validate
     samplesheet = SampleSheet(args.get("input-json"))
