@@ -169,7 +169,7 @@ jobs:
       - id: git_checkout
         uses: actions/checkout@v4
       - id: setup_python
-        uses: kaisugi/action-regex-match@v5
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - id: run_make_test
