@@ -3,12 +3,17 @@
 """
 Samplesheet Class
 """
+# Standard Libraries
+import json
 from pathlib import Path
 from typing import Dict, Optional, List, Union
-
-from .super_sections import Section, KVSection, DataFrameSection
+import pandas as pd
+from tempfile import NamedTemporaryFile
 
 # Relative modules
+from ..utils.logger import get_logger
+from ..utils import pascal_case_to_snake_case
+from .super_sections import Section, KVSection, DataFrameSection
 from ..section_classes.run_info_sections import (
     HeaderSection, ReadsSection, SequencingSection
 )
@@ -25,9 +30,7 @@ from ..section_classes.tso500l_sections import (
     CloudTSO500LDataSection
 )
 
-# Relative subpackages
-from ..utils.logger import get_logger
-
+# Get logging
 logger = get_logger()
 
 
@@ -181,6 +184,14 @@ class SampleSheet:
                     raise ValueError
 
                 if section_type == CloudSettingsSection:
+                    # Check if we have any existing analysis urns
+                    if (
+                            section_dict_or_list.get("analysis_urns", None) is not None and
+                            isinstance(section_dict_or_list.get("analysis_urns"), dict)
+                    ):
+                        cloud_analysis_urns_dict.update(
+                            section_dict_or_list.get("analysis_urns")
+                        )
                     section_dict_or_list.update(
                         {
                             "analysis_urns": cloud_analysis_urns_dict
@@ -200,7 +211,7 @@ class SampleSheet:
 
                 # Update the cloud analysis urns dict
                 if is_cloud_name and issubclass(section_type, KVSection):
-                    if hasattr(section_obj, "urn"):
+                    if hasattr(section_obj, "urn") and section_obj.urn is not None:
                         cloud_analysis_urns_dict.update(
                             {
                                 "Cloud_" + section_type._class_header.rstrip("_Settings") + "_Pipeline": getattr(section_obj, "urn")
@@ -254,4 +265,132 @@ class SampleSheet:
                 section_obj: Section = getattr(self, section_item)
                 section_obj.write_section(file_h, add_new_line_after_section=add_new_line_after_section)
 
+    def to_json(self, output_file: Path):
+        """
+        Write out the samplesheet in json format
+        We use this in the samplesheet reader
+        :param output_file:
+        :return:
+        """
+        # Check if output file is a valid writable path
+        if isinstance(output_file, Path) and not output_file.parent.is_dir():
+            logger.error(f"Output file cannot be written because parent {output_file.parent} does not exist")
+            raise NotADirectoryError
 
+        # Write sections to jsonlines file
+        temp_jsonl_file = NamedTemporaryFile(suffix=".jsonl")
+        with open(temp_jsonl_file.name, "w") as file_h:
+            for index, section_item in enumerate(self.section_list):
+                section_obj: Section = getattr(self, section_item)
+                section_obj.write_section_json(file_h)
+                file_h.write("\n")
+
+        # Read in jsonlines from temp fileins
+        samplesheet_dict = {}
+        with open(temp_jsonl_file.name, "r") as file_h:
+            for line in file_h:
+                samplesheet_dict.update(json.loads(line.strip()))
+
+        # Write out to json file
+        with open(output_file, "w") as file_h:
+            json.dump(
+                samplesheet_dict,
+                file_h,
+                indent=2
+            )
+            # Write final newline
+            file_h.write("\n")
+
+    @classmethod
+    def read_from_samplesheet_csv(cls, samplesheet_csv: Path) -> "SampleSheet":
+        """
+        Read in a samplesheet from a csv file
+        :param samplesheet_csv:
+        :return:
+        """
+        if not samplesheet_csv.is_file():
+            logger.error(f"Samplesheet file {samplesheet_csv} does not exist")
+            raise FileNotFoundError
+
+        # Read in the samplesheet
+        with open(samplesheet_csv, "r") as file_h:
+            samplesheet_dict = {}
+            section_name = None
+            section_lines = []
+            # Iterate through all lines
+            for line in file_h:
+                # Strip ending of line
+                line = line.strip()
+
+                # Skip empty values
+                if line == "":
+                    continue
+
+                # Check if header
+                if line.startswith("[") and line.endswith("]"):
+                    if section_name is not None:
+                        samplesheet_dict[section_name] = section_lines
+                    section_name = line.lstrip("[").rstrip("]")
+                    section_lines = []
+                else:
+                    section_lines.append(line)
+            # Add the last section
+            if section_name is not None:
+                samplesheet_dict[section_name] = section_lines
+            else:
+                # Not sure how we got here
+                logger.error(f"Did not get a section name")
+                raise ValueError
+
+        # Convert all pascal case to snake case for both section names and values
+        samplesheet_dict_sanitised = {}
+        for section_name, section_lines in samplesheet_dict.items():
+            sanitised_section_name = pascal_case_to_snake_case(section_name)
+
+            if sanitised_section_name.endswith("_data"):
+                # This should be a list of dicts
+                sanitised_section_values = pd.DataFrame(
+                    columns=list(
+                        map(
+                            lambda header_iter: pascal_case_to_snake_case(header_iter),
+                            section_lines[0].split(",")
+                        )
+                    ),
+                    data=list(
+                        map(
+                            lambda row_iter: row_iter.split(","),
+                            section_lines[1:]
+                        )
+                    )
+                )
+                sanitised_section_values = sanitised_section_values.to_dict(orient="records")
+            else:
+                # This should be a set of key, value pairs
+                sanitised_section_values = {
+                    pascal_case_to_snake_case(line_iter.split(",")[0]): line_iter.split(",")[1]
+                    for line_iter in section_lines
+                }
+
+            # Update the new samplesheet dict
+            samplesheet_dict_sanitised[sanitised_section_name] = sanitised_section_values
+
+        # Perform exception to Sequence model library_prep_kits and convert to a list
+        if "sequencing" in samplesheet_dict_sanitised.keys():
+            if "library_prep_kits" in samplesheet_dict_sanitised["sequencing"].keys():
+                samplesheet_dict_sanitised["sequencing"]["library_prep_kits"] = (
+                    samplesheet_dict_sanitised["sequencing"]["library_prep_kits"].split(";")
+                )
+
+        # Perform exception to Cloud_Settings, find all keys that end with _pipeline and append to analysis_urns dict
+        if "cloud_settings" in samplesheet_dict_sanitised.keys():
+            cloud_settings = samplesheet_dict_sanitised["cloud_settings"]
+            cloud_analysis_urns = {}
+            for key, value in cloud_settings.items():
+                if key.endswith("_pipeline") and value.startswith("urn:"):
+                    cloud_analysis_urns[key] = value
+            cloud_settings["analysis_urns"] = cloud_analysis_urns
+            samplesheet_dict_sanitised["cloud_settings"] = cloud_settings
+
+
+        # Return the samplesheet object
+        return cls(samplesheet_dict_sanitised)

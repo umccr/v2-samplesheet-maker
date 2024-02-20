@@ -98,3 +98,23 @@ Lane,Sample_ID,index,index2,Sample_Project
 1,MyFirstSample,AAAAAAAAAA,CCCCCCCC,SampleProject
 1,MySecondSample,GGGGGGGGGG,TTTTTTTT,SampleProject
 """
+
+
+def get_v2_samplesheet_reader_doc_opt():
+    return """
+Usage:
+v2-samplesheet-to-json <input-csv> <output-json>
+
+Options:
+
+* input-csv:  Path to the input csv you wish to convert to json. Use '-' for stdin.
+* output-json: Path to the output-json. Use '-' to write to stdout
+
+Example:
+v2-samplesheet-maker SampleSheet.csv /path/to/output.json
+
+Description:
+Given a samplesheet, write out the samplesheet in json format.
+:return:
+"""
+
