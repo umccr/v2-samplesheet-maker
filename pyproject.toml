@@ -20,6 +20,7 @@ dependencies = [
     "pandas >= 2.1.2, < 3",
     "pydantic >= 2.4.2, < 3",
     "verboselogs >= 1.7, < 2",
+    "xmltodict >= 0.12.0, < 1",
 ]
 authors = [
     { name = "Alexis Lucattini", email = "alexis.lucattini@umccr.org" },
@@ -32,6 +33,8 @@ Homepage = "https://github.com/umccr/v2-samplesheet-maker"
 [project.scripts]
 v2-samplesheet-maker = "v2_samplesheet_maker.run.v2_samplesheet_writer:main"
 v2-samplesheet-to-json = "v2_samplesheet_maker.run.v2_samplesheet_reader:main"
+run-info-xml-reader = "v2_samplesheet_maker.run.run_info_reader:main"
+run-info-xml-writer = "v2_samplesheet_maker.run.run_info_writer:main"
 
 [project.optional-dependencies]
 test = [
