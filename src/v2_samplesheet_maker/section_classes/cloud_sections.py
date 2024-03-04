@@ -27,11 +27,30 @@ class CloudSettingsSection(KVSection):
     def __init__(self, *args, **kwargs):
         # Initialise set
         self.analysis_urns = {}
+
+        # Pop keys from kwargs that match the *_pipeline urn:* combination so we don't raise a warning
+        # There might also be keys missed that were not picked up by the analysis urns list
         for kwarg_key, kwarg_value in deepcopy(kwargs).items():
-            # Check kwarg is a pipeline variable
-            if not (
+            if (
                     kwarg_key.lower().endswith("_pipeline") and
                     kwarg_value.lower().startswith("urn:")
+            ):
+
+                # Pop kwarg key from kwargs
+                kwarg_value = kwargs.pop(kwarg_key)
+
+                if snake_case_to_upper_snake_case(kwarg_key) not in self.analysis_urns:
+                    self.analysis_urns.update(
+                        {
+                            snake_case_to_upper_snake_case(kwarg_key): kwarg_value
+                        }
+                    )
+
+        # Check initial analysis arns
+        for urn_key, urn_value in deepcopy(kwargs).get("analysis_urns", {}).items():
+            if not (
+                    urn_key.lower().endswith("_pipeline") and
+                    urn_value.lower().startswith("urn:")
             ):
                 continue
 
@@ -41,7 +60,7 @@ class CloudSettingsSection(KVSection):
                 # Convert snake_case to upper snake case
                 # Since we don't touch these again in the to_dict or to_json methods
                 {
-                    snake_case_to_upper_snake_case(kwarg_key): kwargs.pop(kwarg_key)
+                    snake_case_to_upper_snake_case(urn_key): urn_value
                 }
             )
 
