@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "v2_samplesheet_maker"
-version = "4.2.4.post20240304150506"
+version = "4.2.4.dev20240305094958"
 description = "v2 SampleSheet maker"
 readme = "Readme.md"
 requires-python = ">=3.10"
@@ -35,6 +35,7 @@ v2-samplesheet-maker = "v2_samplesheet_maker.run.v2_samplesheet_writer:main"
 v2-samplesheet-to-json = "v2_samplesheet_maker.run.v2_samplesheet_reader:main"
 run-info-xml-reader = "v2_samplesheet_maker.run.run_info_reader:main"
 run-info-xml-writer = "v2_samplesheet_maker.run.run_info_writer:main"
+v2-samplesheet-to-run-info-xml = "v2_samplesheet_maker.run.v2_samplesheet_to_run_info_xml:main"
 
 [project.optional-dependencies]
 test = [
@@ -53,6 +54,5 @@ toml = [
 
 [tool.setuptools]
 script-files = [
-    "scripts/build-runinfo-xml-from-reads-json.sh",
     "scripts/build-samplesheet-and-validate-with-bcl-convert.sh",
 ]

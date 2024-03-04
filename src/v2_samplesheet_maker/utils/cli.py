@@ -206,3 +206,68 @@ def check_run_info_xml_writer_args(args) -> Dict:
     return args
 
 
+def check_v2_samplesheet_to_run_info_xml(args) -> Dict:
+    """
+    Check the samplesheet to run info xml args are legit
+    :param args: A dictionary with the following keys:
+      * <input-csv> (Path to an input csv)
+      * <output-xml> (Either '-' for /dev/stdout or a file)
+      * --run-id: The run id
+      * --run-number: The run number
+      * --flowcell: The flowcell
+      * --instrument: The instrument
+      * --date: The date
+    :return: A dictionary with the following keys
+      * input-csv ( A v2 samplesheet)
+      * output-xml (Path to an output xml file or a file-handle if '-' is specified)
+      * run-number
+      * flowcell
+      * instrument
+      * date
+    """
+    # Always clone before editing
+    args = deepcopy(args)
+
+    # Check input json
+    input_csv_arg = args.get("<input-csv>")
+
+    if input_csv_arg == "-":
+        # input_csv = sys.stdin.fileno()
+        input_csv = sys.stdin
+    # Check input_csv file exists
+    elif not Path(input_csv_arg).is_file():
+        logger.error(f"Could not read {input_csv_arg}")
+        raise FileNotFoundError
+    else:
+        input_csv = Path(input_csv_arg)
+
+    # Assign args
+    args["input-csv"] = input_csv
+
+    # Check output xml
+    output_xml_arg = args.get("<output-xml>")
+
+    if output_xml_arg == "-":
+        output_xml = sys.stdout.fileno()
+    elif not Path(output_xml_arg).parent.is_dir():
+        logger.error(f"Could not find parent directory '{Path(output_xml_arg).parent}'"
+                     f"for '{output_xml_arg}', cannot create file. Please create parent and try again")
+        raise NotADirectoryError
+    else:
+        output_xml = Path(output_xml_arg)
+
+    args["output-xml"] = output_xml
+
+    # Check run id
+    run_id = args.get("--run-id")
+    if not run_id:
+        logger.error(f"Please specify a run id")
+        raise ValueError
+    args["run-id"] = run_id
+
+    # Check optional inputs
+    for optional_input in ["run-number", "instrument", "flowcell", "date"]:
+        if args.get(f"--{optional_input}", None) is not None:
+            args[optional_input] = args[f"--{optional_input}"]
+
+    return args

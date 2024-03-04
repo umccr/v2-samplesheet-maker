@@ -121,7 +121,6 @@ Given a samplesheet, write out the samplesheet in json format.
 def get_run_info_xml_reader_doc_opt():
     return """
 Usage:
-
 run-info-xml-to-json <input-xml> <output-json>
 
 Options:
@@ -200,7 +199,6 @@ run-info-xml-to-json RunInfo.xml /path/to/output.json
 def get_run_info_xml_writer_doc_opt():
     return """
 Usage:
-
 run-info-json-to-xml <input-json> <output-xml>
 
 Options:
@@ -212,8 +210,34 @@ Example:
 
 run-info-json-to-xml /path/to/input.json RunInfo.xml
 
-
-
-
 """
+
+
+def get_samplesheet_csv_to_run_info_xml_doc_opt():
+    return """
+Usage:
+samplesheet-csv-to-run-info-xml <input-csv> <output-xml> 
+                                (--run-id=<run_id>)
+                                [--run-number=<run_number>]
+                                [--flowcell=<flowcell>]
+                                [--instrument=<instrument>]
+                                [--date=<date>]
+                                
+                                
+Options:
+
+* input-csv:    Path to the input csv you wish to convert to xml. Use '-' for stdin.
+* output-xml:   Path to the output-xml. Use '-' to write to stdout
+* --run-id:     The run id to use in the RunInfo.xml file, 
+                note if this is in the format of YYMMDD_<INSTRUMENT_ID>_<RUN_NUMBER>_A|B<FLOWCELL_ID>
+                then none of --run-number, --flowcell, --instrument or --date are required
+* --flowcell:   The flowcell id to use in the RunInfo.xml file
+* --instrument: The instrument id to use in the RunInfo.xml file
+* --date:       The date to use in the RunInfo.xml file (YYYYMMDD)
+
+Example:
+
+samplesheet-csv-to-run-info-xml SampleSheet.csv RunInfo.xml --run-id=240220_A01052_0183_BH5HLHDSXC
+"""
+
 

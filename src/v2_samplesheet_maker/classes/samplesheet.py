@@ -23,6 +23,13 @@ from ..section_classes.bcl_convert_sections import (
 from ..section_classes.cloud_sections import (
     CloudSettingsSection, CloudDataSection
 )
+
+from ..section_classes.tso500s_sections import (
+    TSO500SSettingsSection,
+    CloudTSO500SSettingsSection,
+    TSO500SDataSection,
+    CloudTSO500SDataSection
+)
 from ..section_classes.tso500l_sections import (
     TSO500LSettingsSection,
     CloudTSO500LSettingsSection,
@@ -81,11 +88,16 @@ class SampleSheet:
         # Cloud Settings
         CloudSettingsSection,
         CloudDataSection,
+        # TSO500S (Local and Cloud)
+        TSO500SSettingsSection,
+        CloudTSO500SSettingsSection,
+        TSO500SDataSection,
+        CloudTSO500SDataSection,
         # TSO500L (Local and Cloud)
         TSO500LSettingsSection,
         CloudTSO500LSettingsSection,
         TSO500LDataSection,
-        CloudTSO500LDataSection,
+        CloudTSO500LDataSection
     ]
 
     # Import Cloud settings last
@@ -136,7 +148,11 @@ class SampleSheet:
         self.cloud_settings_section: Optional[CloudSettingsSection] = None
         self.cloud_data_section: Optional[CloudDataSection] = None
 
-        # TSO500 Section (can be both cloud and non-cloud)
+        # TSO500S Section (can be both cloud and non-cloud)
+        self.tso500s_settings_section: Optional[Union[TSO500SSettingsSection|CloudTSO500SSettingsSection]] = None
+        self.tso500s_data_section: Optional[Union[TSO500SDataSection|CloudTSO500SDataSection]] = None
+
+        # TSO500L Section (can be both cloud and non-cloud)
         self.tso500l_settings_section: Optional[Union[TSO500LSettingsSection|CloudTSO500LSettingsSection]] = None
         self.tso500l_data_section: Optional[Union[TSO500LDataSection|CloudTSO500LDataSection]] = None
 
