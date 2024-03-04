@@ -158,6 +158,10 @@ You will need both jq and docker installed for this to work.
 
 We also have created a parser between the csv and json, with the following usage syntax
 
+```
+v2-samplesheet-to-json SampleSheet.csv -
+```
+
 **Input SampleSheet CSV**
 
 <details>
