@@ -115,6 +115,105 @@ v2-samplesheet-maker SampleSheet.csv /path/to/output.json
 
 Description:
 Given a samplesheet, write out the samplesheet in json format.
-:return:
+"""
+
+
+def get_run_info_xml_reader_doc_opt():
+    return """
+Usage:
+
+run-info-xml-to-json <input-xml> <output-json>
+
+Options:
+
+* input-xml:  Path to the input xml you wish to convert to json. Use '-' for stdin.
+* output-json: Path to the output-json. Use '-' to write to stdout
+
+
+Description:
+Given a RunInfo.xml, write out the run info in json format.
+Only the minimal amount of information is extracted from the RunInfo.xml file.  
+This includes:
+
+* RunInfo Version
+* RunName
+* Flowcell
+* Instrument
+* Date
+* Reads
+
+Given an input like:
+<?xml version="1.0" encoding="utf-8"?>
+<RunInfo Version="5">
+	<Run Id="240220_A01052_0183_BH5HLHDSXC" Number="183">
+		<Flowcell>H5HLHDSXC</Flowcell>
+		<Instrument>A01052</Instrument>
+		<Date>2/20/2024 4:21:44 PM</Date>
+		<Reads>
+			<Read Number="1" NumCycles="151" IsIndexedRead="N"/>
+			<Read Number="2" NumCycles="20" IsIndexedRead="Y"/>
+			<Read Number="3" NumCycles="8" IsIndexedRead="Y"/>
+			<Read Number="4" NumCycles="151" IsIndexedRead="N"/>
+		</Reads>
+		...
+	</Run>
+</RunInfo>
+
+The output json will look like the following:
+{
+  "run_info_version": 5,
+  "run_name": "240220_A01052_0183_BH5HLHDSXC",
+  "flowcell": "H5HLHDSXC",
+  "instrument": "A01052",
+  "date": "2019-01-01T00:00:00Z",
+  "reads": {
+    [
+      {
+        "read_number": 1,
+        "cycles": 151,
+        "is_index": false
+      },
+      {
+        "read_number": 2,
+        "cycles": 10,
+        "is_index": true
+      },
+      {
+          "read_number": 3,
+          "cycles": 10,
+          "is_index": true
+      },
+      {
+          "read_number": 4,
+          "cycles": 151,
+          "is_index": false
+      }
+    ]
+}
+
+Example:
+run-info-xml-to-json RunInfo.xml /path/to/output.json
+
+"""
+
+
+def get_run_info_xml_writer_doc_opt():
+    return """
+Usage:
+
+run-info-json-to-xml <input-json> <output-xml>
+
+Options:
+
+* input-json:  Path to the input json you wish to convert to xml. Use '-' for stdin.
+* output-xml: Path to the output-xml. Use '-' to write to stdout
+
+Example:
+
+run-info-json-to-xml /path/to/input.json RunInfo.xml
+
+
+
+
 """
 
