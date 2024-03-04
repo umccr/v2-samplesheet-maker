@@ -13,7 +13,8 @@ Requires jq, yq and docker or bcl-convert binary to run
 ## FUNCTIONS ##
 print_help(){
   echo "
-Usage: build-samplesheet-and-validate-with-bcl-convert.sh <input-json> [<output-samplesheet-path>] [--options]
+Usage: build-samplesheet-and-validate-with-bcl-convert.sh <input-json> [<output-samplesheet-path>]
+                                                          [--bcl-convert-options]...
 
 Options:
   <input-json>:               Required, input json to convert to csv and then run against bclconvert.
@@ -23,7 +24,7 @@ Options:
                               Both --arg=value and --arg value conventions are supported.
     This excludes the following parameters:
       --bcl-validate-sample-sheet-only         (this is always set to true)
-      --run-info                               (we generate this using the reads section of the json file)
+      --run-info                               (we generate this after generating the sample sheet)
       --sample-sheet                           (we generate this using the input json)
       --bcl-input-directory                    (we make a fake directory for this)
       --output-directory                       (we make an output directory for this)
@@ -82,8 +83,8 @@ elif ! type v2-samplesheet-maker 1>/dev/null 2>&1; then
   docker pull ghcr.io/umccr/v2-samplesheet-maker:latest
 fi
 
-if ! type build-runinfo-xml-from-reads-json.sh 1>/dev/null 2>&1; then
-  echo_stderr "Please install build-runinfo-xml-from-reads-json.sh from this project"
+if ! type v2-samplesheet-to-run-info-xml 1>/dev/null 2>&1; then
+  echo_stderr "Please install v2-samplesheet-to-run-info-xml from this project"
   print_help | echo_stderr
   exit 1
 fi
@@ -103,6 +104,7 @@ input_json_file=""
 output_samplesheet_path=""
 positional_args_array=()
 bcl_convert_args=()
+run_id="241231_A0001_0001_AHABCDDSXX"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -176,16 +178,6 @@ samplesheet_tmp_file="$(mktemp -p "${samplesheet_tmp_dir}" -t SampleSheet.XXXXXX
 bclconvert_input_path="$(mktemp -d)"
 output_path="$(mktemp -d)"
 
-echo_stderr "Generating a tmp run info xml file"
-reads_json_str="$( \
-  jq --raw-output --compact-output \
-   '
-     .reads
-   ' < "${input_json_file}"
-)"
-# Needs to not exist
-rm "${run_info_tmp_file}"
-build-runinfo-xml-from-reads-json.sh "${reads_json_str}" "${run_info_tmp_file}"
 
 # Write out samplesheet
 echo_stderr "Generating v2 samplesheet from json input"
@@ -202,6 +194,10 @@ else
   v2-samplesheet-maker "${input_json_file}" "${samplesheet_tmp_file}"
 fi
 echo_stderr "Completed v2 samplesheet generation"
+
+# Generate a mockup of the RunInfo.xml from the output samplesheet tmp file
+echo_stderr "Generating a tmp run info xml file"
+v2-samplesheet-to-run-info-xml "${samplesheet_tmp_file}" "${run_info_tmp_file}" --run-id "${run_id}"
 
 # Run bclconvert through docker or standalone
 echo_stderr "Running bcl-convert --validate on newly generated v2 samplesheet"

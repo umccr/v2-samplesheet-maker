@@ -111,12 +111,16 @@ def run_info_xml_writer(
             f" but got {type(json_input_path_or_stream)}"
         )
 
+    run_info_dict = generate_run_info_xml_from_minimal_inputs(
+        json_input_path_or_stream
+    )
+
     # Generate XML
     if output_path is None:
-        return StringIO(xmltodict.unparse(json_input_path_or_stream, pretty=True))
+        return StringIO(xmltodict.unparse(run_info_dict, pretty=True))
     else:
         with open(output_path, "w") as output_path_h:
-            output_path_h.write(xmltodict.unparse(json_input_path_or_stream, pretty=True))
+            output_path_h.write(xmltodict.unparse(run_info_dict, pretty=True))
             output_path_h.write("\n")
 
 
@@ -144,7 +148,7 @@ def generate_run_info_xml_from_minimal_inputs(
     # Check if any of the optional inputs are None
     if any(map(lambda x: x is None, [number, flowcell, instrument, date])):
         # Check if run_id is in the expected format
-        run_id_regex = re.match(r"(\d{6})_([A-Z0-9]+)_(\d+)_A|B([A-Z0-9]+)", run_id)
+        run_id_regex = re.match(r"(\d{6})_([A-Z0-9]+)_(\d+)_[A|B]([A-Z0-9]+)", run_id)
 
         if run_id_regex is None:
             raise ValueError(
@@ -171,8 +175,8 @@ def generate_run_info_xml_from_minimal_inputs(
         # Set ImageDimensions
         if input_dict["Run"].get("ImageDimensions") is None:
             input_dict["Run"]["ImageDimensions"] = {
-                "@Width": "3200",
-                "@Height": "3607"
+                "@Width": "9999",
+                "@Height": "9999"
             }
 
         # Set ImageChannels
@@ -184,8 +188,6 @@ def generate_run_info_xml_from_minimal_inputs(
                 ]
             }
 
-    return generate_run_info_xml_from_minimal_inputs(
-        {
-            "RunInfo": input_dict
-        }
-    )
+    return {
+        "RunInfo": input_dict
+    }
