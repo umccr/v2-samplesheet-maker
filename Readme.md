@@ -158,6 +158,10 @@ You will need both jq and docker installed for this to work.
 
 We also have created a parser between the csv and json, with the following usage syntax
 
+```
+v2-samplesheet-to-json SampleSheet.csv -
+```
+
 **Input SampleSheet CSV**
 
 <details>
@@ -195,6 +199,70 @@ Lane,Sample_ID,index,index2,Sample_Project
 ```
 
 </details>
+
+Gives us
+
+<details>
+
+<summary>Click to expand!</summary>
+
+```json
+{
+  "header": {
+    "file_format_version": 2,
+    "run_name": "my-illumina-sequencing-run",
+    "run_description": "A test run",
+    "instrument_platform": "NovaSeq 6000",
+    "instrument_type": "NovaSeq"
+  },
+  "reads": {
+    "read_1_cycles": 151,
+    "read_2_cycles": 151,
+    "index_1_cycles": 10,
+    "index_2_cycles": 10
+  },
+  "bclconvert_settings": {
+    "adapter_behavior": "trim",
+    "barcode_mismatches_index_1": 1,
+    "barcode_mismatches_index_2": 1,
+    "minimum_adapter_overlap": 2,
+    "override_cycles": "Y151;Y10;Y8N2;Y151",
+    "create_fastq_for_index_reads": false,
+    "no_lane_splitting": false,
+    "fastq_compression_format": "gzip"
+  },
+  "bclconvert_data": [
+    {
+      "lane": 1,
+      "sample_id": "MyFirstSample",
+      "index": "AAAAAAAAAA",
+      "index2": "CCCCCCCC",
+      "sample_project": "SampleProject"
+    },
+    {
+      "lane": 1,
+      "sample_id": "MySecondSample",
+      "index": "GGGGGGGGGG",
+      "index2": "TTTTTTTT",
+      "sample_project": "SampleProject"
+    }
+  ]
+}
+```
+
+</details>
+
+
+### Manipulating a samplesheet by parsing through JSON
+
+For this component, you will need some basic knowledge of the [jq][jq_url] command line tool. 
+
+In this example we are given a standard samplesheet but want to edit the adapters for one of the samples.  
+
+Whilst we could do this with grep, sed or awk, it's a little hacky, instead we can
+1. Parse the samplesheet to json to stdout
+2. Use jq to update the samplesheet 
+3. Write out the updated samplesheet to csv
 
 ```bash
 # Initialise new index variable
@@ -272,24 +340,6 @@ Yields
 < 1,MySecondSample,GGGGGGGGGG,TTTTTTTT,SampleProject
 ---
 > 1,MySecondSample,TTTTTTTTTT,TTTTTTTT,SampleProject
-```
-
-
-### Manipulating a samplesheet by parsing through JSON
-
-For this component, you will need some basic knowledge of the [jq][jq_url] command line tool. 
-
-In this example we are given a standard samplesheet but want to edit the adapters for one of the samples.  
-
-Whilst we could do this with grep, sed or awk, it's a little hacky, instead we can
-1. Parse the samplesheet to json to stdout
-2. Use jq to update the samplesheet 
-3. Write out the updated samplesheet to csv
-
-
-```bash
-v2-samplesheet-to-json 
-
 ```
 
 

@@ -362,6 +362,9 @@ class SampleSheet:
                             section_lines[1:]
                         )
                     )
+                ).replace(
+                    # Coerce '' to pd.NA
+                    "", pd.NA
                 )
                 sanitised_section_values = sanitised_section_values.to_dict(orient="records")
             else:

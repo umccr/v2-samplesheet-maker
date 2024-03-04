@@ -77,5 +77,6 @@ def snake_case_to_upper_snake_case(snake_case_str: str) -> str:
 
     # Replace tso500l with TSO500L
     upper_snake_case_str = upper_snake_case_str.replace("Tso500l", "TSO500L")
+    upper_snake_case_str = upper_snake_case_str.replace("Bclconvert", "BCLConvert")
 
     return upper_snake_case_str
