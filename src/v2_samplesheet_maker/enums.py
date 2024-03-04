@@ -14,3 +14,12 @@ class FastqCompressionFormat(Enum):
 
 class TSO500LSampleType(Enum):
     DNA = "DNA"
+
+
+class TSO500SSampleType(Enum):
+    DNA = "DNA"
+    RNA = "RNA"
+
+
+class TSO500SSampleFeature(Enum):
+    HRD = "HRD"
