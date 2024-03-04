@@ -3,14 +3,14 @@
 """
 Read in a v2 samplesheet and output as json
 """
-import sys
-from pathlib import Path
 
+# Standard imports
 from docopt import docopt
 
+# Custom imports
 from v2_samplesheet_maker.utils.cli import check_v2_samplesheet_reader_args
 from v2_samplesheet_maker.utils.docopt_docs import get_v2_samplesheet_reader_doc_opt
-from v2_samplesheet_maker.classes.samplesheet import SampleSheet
+from v2_samplesheet_maker.functions.v2_samplesheet_reader import v2_samplesheet_reader
 
 
 def read_v2_samplesheet():
@@ -26,10 +26,10 @@ def read_v2_samplesheet():
     args = check_v2_samplesheet_reader_args(args)
 
     # Read in samplesheet and validate
-    samplesheet = SampleSheet.read_from_samplesheet_csv(args.get("input-csv"))
-
-    # Write out samplesheet to csv
-    samplesheet.to_json(args.get("output-json"))
+    v2_samplesheet_reader(
+        args.get("input-csv"),
+        args.get("output-json")
+    )
 
 
 def main():
