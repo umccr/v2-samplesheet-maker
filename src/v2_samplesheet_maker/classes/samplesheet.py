@@ -11,6 +11,7 @@ import pandas as pd
 from tempfile import NamedTemporaryFile
 
 # Relative modules
+from ..globals import HEADER_REGEX_MATCH
 from ..utils.logger import get_logger
 from ..utils import pascal_case_to_snake_case
 from .super_sections import Section, KVSection, DataFrameSection
@@ -343,10 +344,10 @@ class SampleSheet:
                     continue
 
                 # Check if header
-                if line.startswith("[") and line.endswith("]"):
+                if HEADER_REGEX_MATCH.match(line):
                     if section_name is not None:
                         samplesheet_dict[section_name] = section_lines
-                    section_name = line.lstrip("[").rstrip("]")
+                    section_name = HEADER_REGEX_MATCH.match(line).group(1)
                     section_lines = []
                 else:
                     section_lines.append(line)
@@ -409,7 +410,6 @@ class SampleSheet:
                     cloud_analysis_urns[key] = value
             cloud_settings["analysis_urns"] = cloud_analysis_urns
             samplesheet_dict_sanitised["cloud_settings"] = cloud_settings
-
 
         # Return the samplesheet object
         return cls(samplesheet_dict_sanitised)
