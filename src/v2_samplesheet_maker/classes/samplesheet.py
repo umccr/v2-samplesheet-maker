@@ -343,6 +343,10 @@ class SampleSheet:
                 if line == "":
                     continue
 
+                # Skip line if it's all commas
+                if all(list(map(lambda char_iter_: char_iter_ == ",", list(line)))):
+                    continue
+
                 # Check if header
                 if HEADER_REGEX_MATCH.match(line):
                     if section_name is not None:

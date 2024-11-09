@@ -35,5 +35,15 @@
       "index2": "TTTTTTTT",
       "sample_project": "SampleProject"
     }
+  ],
+  "cloud_data": [
+    {
+      "sample_id": "MyFirstSample",
+      "library_name": "MyFirstSample_AAAAAAAAAA_CCCCCCCC"
+    },
+    {
+      "sample_id": "MySecondSample",
+      "library_name": "MySecondSample_GGGGGGGGGG_TTTTTTTT"
+    }
   ]
 }

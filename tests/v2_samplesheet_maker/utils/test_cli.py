@@ -92,6 +92,12 @@ class TestCheckV2SampleSheetToJSONArgs:
         "<output-json>": "examples/csv_to_json_outputs/standard-sheet-with-settings.json"
     }
 
+    # FIMXE - not used yet
+    valid_args_excel_input = {
+        "<input-csv>": "examples/inputs/samplesheet_from_excel.csv",
+        "<output-json>": "examples/csv_to_json_outputs/samplesheet_from_excel.json"
+    }
+
     invalid_valid_args_bad_input = {
         "<input-csv>": "examples/csv_outputs/standard-sheet-with-settings.doesnotexist.csv",
         "<output-json>": "examples/json_inputs/standard-sheet-with-settings.json",

@@ -1,0 +1,55 @@
+{
+  "header": {
+    "file_format_version": 2,
+    "run_name": "MyRunName",
+    "instrument_type": "NovaSeq"
+  },
+  "reads": {
+    "read_1_cycles": 151,
+    "read_2_cycles": 151,
+    "index_1_cycles": 8,
+    "index_2_cycles": 8
+  },
+  "bclconvert_settings": {
+    "override_cycles": "Y151;I8;I8;Y151",
+    "software_version": "4.2.7"
+  },
+  "bclconvert_data": [
+    {
+      "lane": 1,
+      "sample_id": "MySampleID",
+      "index": "AAAAAAAA",
+      "index2": "CCCCCCCC"
+    },
+    {
+      "lane": 2,
+      "sample_id": "MySampleID",
+      "index": "AAAAAAAA",
+      "index2": "CCCCCCCC"
+    },
+    {
+      "lane": 3,
+      "sample_id": "MySampleID",
+      "index": "AAAAAAAA",
+      "index2": "CCCCCCCC"
+    },
+    {
+      "lane": 4,
+      "sample_id": "MySampleID",
+      "index": "AAAAAAAA",
+      "index2": "CCCCCCCC"
+    }
+  ],
+  "cloud_settings": {
+    "generated_version": "0.0.0",
+    "cloud_workflow": "ica_workflow_1",
+    "bclconvert_pipeline": "urn:ilmn:ica:pipeline:bf93b5cf-cb27-4dfa-846e-acd6eb081aca#BclConvert_v4_2_7"
+  },
+  "cloud_data": [
+    {
+      "sample_id": "MySampleID",
+      "library_name": "MySampleID",
+      "library_prep_kit_name": "NebRNA"
+    }
+  ]
+}
