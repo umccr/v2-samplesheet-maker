@@ -59,6 +59,7 @@ jobs:
       - name: Push to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
+          attestations: false
           repository-url: ${{ inputs.pypi_repository_url }}
 
       # Wait for cache
